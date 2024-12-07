@@ -58,7 +58,9 @@ function Dashboard() {
         // Update the order status locally
         setRecentOrders((prevOrders) =>
           prevOrders.map((order) =>
-            order.order_id === orderId ? { ...order, status: "completed" } : order
+            order.order_id === orderId
+              ? { ...order, status: "completed" }
+              : order
           )
         );
         alert("Order marked as completed!");
@@ -80,7 +82,7 @@ function Dashboard() {
           { label: "Total Sales", value: totalSales },
           { label: "Total Income", value: `₹${totalIncome}` },
           { label: "Completed Orders", value: newOrders },
-          { label: "Pending Payment", value: pendingOrders },
+          { label: "Total Orders", value: pendingOrders },
         ].map((item, idx) => (
           <div
             key={idx}
@@ -100,56 +102,61 @@ function Dashboard() {
 
       {/* Recent Orders Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold mb-4">Recent Orders</h3>
-          <ul className="space-y-4">
-            {loading ? (
-              <li className="text-gray-700 animate-pulse">Loading...</li>
-            ) : error ? (
-              <li className="text-red-500">{error}</li>
-            ) : (
-              recentOrders.map((order) => (
-                <li
-                  key={order.order_id}
-                  className="flex justify-between items-center hover:bg-gray-50 p-3 rounded transition"
+      <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-lg">
+  <h3 className="text-xl font-semibold mb-4">Recent Orders</h3>
+  <div
+    className="space-y-4 overflow-y-auto"
+    style={{ maxHeight: "300px" }} // Scrollable container
+  >
+    {loading ? (
+      <p className="text-gray-700 animate-pulse">Loading...</p>
+    ) : error ? (
+      <p className="text-red-500">{error}</p>
+    ) : (
+      <ul>
+        {recentOrders
+          .filter((order) => order.status === "pending") // Filter for pending orders
+          .map((order) => (
+            <li
+              key={order.order_id}
+              className="flex justify-between items-center hover:bg-gray-50 p-3 rounded transition"
+            >
+              <span>Order #{order.order_id}</span>
+              <span className="text-sm text-gray-500">{order.order_date}</span>
+              <span className="font-medium text-gray-900">₹{order.total_amount}</span>
+              <span
+                className={`px-2 py-1 text-xs rounded-full ${
+                  order.status === "completed"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-yellow-100 text-yellow-800"
+                }`}
+              >
+                {order.status}
+              </span>
+              {order.status === "pending" && (
+                <button
+                  className="ml-4 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                  onClick={() => updateOrderStatus(order.order_id)}
                 >
-                  <span>Order #{order.order_id}</span>
-                  <span className="text-sm text-gray-500">{order.order_date}</span>
-                  <span className="font-medium text-gray-900">₹{order.total_amount}</span>
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      order.status === "completed"
-                        ? "bg-green-100 text-green-800"
-                        : order.status === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {order.status}
-                  </span>
-                  {order.status === "pending" && (
-                    <button
-                      className="ml-4 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-                      onClick={() => updateOrderStatus(order.order_id)}
-                    >
-                      Mark as Completed
-                    </button>
-                  )}
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
+                  Mark as Completed
+                </button>
+              )}
+            </li>
+          ))}
+      </ul>
+    )}
+  </div>
+</div>
 
         {/* Notifications Section */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h3 className="text-3xl font-semibold mb-4">Notifications</h3>
+        <div className="bg-gray-200 p-16 rounded-lg shadow-lg">
+          <h3 className="text-4xl font-semibold mb-4">Notifications</h3>
           <h4 className="text-2xl font-semibold mb-4">Latest order</h4>
           {loading ? (
             <p>Loading...</p>
           ) : currentOrder ? (
             <div className="animate-fade-in">
-              <p> Order ID:  #{currentOrder.order_id}</p>
+              <p> Order ID: #{currentOrder.order_id}</p>
               <p>Amount: ₹{currentOrder.total_amount}</p>
               <p>
                 Status:{" "}
@@ -164,6 +171,7 @@ function Dashboard() {
                 </span>
               </p>
             </div>
+            
           ) : (
             <p>No orders available.</p>
           )}

@@ -39,12 +39,6 @@ function AddSubCategory() {
       return;
     }
    
-
-
-    
-
-
-
     $.ajax({
       url: "http://localhost/ecommere_react_with_php-main/src/ajax/createSubCategory.php",
       type: "POST",
@@ -60,7 +54,7 @@ function AddSubCategory() {
           alert("Category created successfully");
           setMessage("Category added successfully!");
           setCategoryName(""); // Reset the input field
- // Clear image preview
+      // Clear image preview
         } else {
           setMessage(response.message || "Error adding category.");
         }

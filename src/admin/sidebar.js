@@ -127,6 +127,12 @@ const Sidebar = ({ isOpen, toggleSidebar, setActiveSection }) => {
                                 </button>
                                
                             </li>
+                            <li>
+                            <button onClick={() => setActiveSection('Add-product-Size')} className="flex items-center px-4 py-2 text-sm hover:bg-gray-700">
+                            Add category size
+                                </button>
+                               
+                            </li>
                         </ul>
                     )}
                 </li>

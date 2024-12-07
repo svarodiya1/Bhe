@@ -10,6 +10,8 @@ import CategoryList from './Category/categoryList';
 import UserList from './User/userList';
 import AddSubCategory from './Category/AddSubCategory';
 import MainCategoryList from './Category/ManageMainCategory';
+import AddProductSize from './Category/AddProductSize';
+
 
 function DashboardMain() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -30,13 +32,15 @@ function DashboardMain() {
             case 'add-category':
                 return <AddCategory />;
             case 'category-list':
-                return <CategoryList />;
+                return <CategoryList />;  
             case 'main-category-list':
                 return <MainCategoryList />;
             case 'user-list':
                 return <UserList />;
             case 'sub-cat':
                 return <AddSubCategory />;
+             case 'Add-product-Size':
+                return <AddProductSize/>; 
             default:
                 return <Dashboard />;
         }

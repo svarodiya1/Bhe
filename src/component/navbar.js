@@ -24,15 +24,15 @@ function Navbar() {
 
   return (
     <>
-      <div className="bg-gray-50">
-        <nav className="bg-white border-b border-gray-300 shadow-sm max-w-8xl mx-auto">
-          <div className="container mx-auto flex justify-between items-center py-4 px-3 md:px-6">
-            {/* <!-- Logo --> */}
-            <div className="font-bold text-gray-900 md:w-24 w-16">
-              <Link to="/" className="md:text-xl text-lg font-bold">
-                <img src={bhatiaLogo} width="" alt="" />
-              </Link>
-            </div>
+     <div className="bg-gradient-to-r from-purple-200 via-purple-500 to-purple-300">
+  <nav className="bg-transparent border-b border-gray-300 shadow-sm max-w-8xl mx-auto">
+    <div className="container mx-auto flex justify-between items-center py-4 px-3 md:px-6">
+      {/* <!-- Logo --> */}
+      <div className="font-bold text-gray-900 md:w-24 w-16">
+        <Link to="/" className="md:text-xl text-lg font-bold">
+          <img src={bhatiaLogo} width="" alt="" />
+        </Link>
+      </div>
             {/* <!-- Search Bar (Visible on larger screens) --> */}
             <div className="lg:block w-2/4">
               {/* <input type="text" placeholder="Enter your product name..." className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-gray-200" /> */}
@@ -63,7 +63,7 @@ function Navbar() {
               <div className="flex flex-col justify-center items-center">
                 <Link
                   to="/dashboard"
-                  className="text-gray-600 hover:text-gray-800 md:block text-lg hidden"
+                  className="text-white font-bold hover:text-gray-800 md:block text-lg hidden"
                 >
                   <SlUser />
                 </Link>
@@ -74,7 +74,7 @@ function Navbar() {
               <div className="flex flex-col justify-center items-center">
                 <Link
                   to="/wishlist"
-                  className="text-gray-600 hover:text-gray-800 text-xl md:block hidden"
+                   className="text-white font-bold hover:text-gray-800 md:block text-lg hidden"
                 >
                   <IoMdHeartEmpty />
                 </Link>
@@ -85,7 +85,7 @@ function Navbar() {
               <div className="flex flex-col justify-center items-center">
                 <Link
                   to={"/cart"}
-                  className="text-gray-600 hover:text-gray-800 md:block text-xl"
+                    className="text-white font-bold hover:text-gray-800 md:block text-lg hidden"
                 >
                   <PiShoppingCartSimple />
                 </Link>
@@ -97,24 +97,24 @@ function Navbar() {
             </div>
             {/* <!-- Mobile Hamburger Icon --> */}
             <button
-              className="lg:hidden text-gray-600 hover:text-gray-800"
-              onClick={toggleMenu}
+               className="lg:hidden text-white hover:text-purple-300 bg-purple-600 hover:bg-purple-700 rounded-full p-2 transition duration-200"
+               onClick={toggleMenu}
             >
-              <i className="fas fa-bars"></i>
+              <i className="fas fa-bars text-2xl"></i>
             </button>
-          </div>
+          </div> 
 
           <div className="flex justify-center">
             <ul className="hidden lg:flex w-full justify-center items-center space-x-5 py-2 border-y border-gray-300">
               <li className="relative group">
-                <a href="#" className="text-gray-700 hover:text-gray-900">
-                  All Categories
+                <a href="#" className="font-bold text-white ">
+                  All Categories 
                 </a>
 
                 {/* <!-- Dropdown Menu --> */}
-                <div className="hidden z-50 absolute left-0 top-full bg-white shadow-lg border border-gray-200 mt-2 p-6 w-[800px] group-hover:flex justify-between">
+                <div className="hidden z-50 absolute left-0 top-full bg-[#CDC1FF] border-gray-200 mt-2 p-6 w-[800px] group-hover:flex justify-between">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-3 border-b border-gray-300 pb-2">
+                    <h4 className="font-semibold text-gray-900 mb-3 border-b pb-2">
                       Table Cover
                     </h4>
                     <ul className="space-y-2">
@@ -307,7 +307,7 @@ function Navbar() {
               <li>
                 <Link
                   to="/table-top"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="font-bold text-white "
                 >
                   Table Cover
                 </Link>
@@ -316,14 +316,14 @@ function Navbar() {
               <li>
                 <Link
                   to="/washing-machine-cover"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="font-bold text-white "
                 >
                   Washing Machine Cover
                 </Link>
               </li>
               <span className="text-gray-400">|</span>
               <li>
-                <a href="#" className="text-gray-700 hover:text-gray-900">
+                <a href="#" className="font-bold text-white ">
                   Mattress Cover
                 </a>
               </li>
@@ -332,7 +332,7 @@ function Navbar() {
               <li>
                 <Link
                   to="/kitchen-apron"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="font-bold text-white "
                 >
                   Kitchen Apron
                 </Link>
@@ -342,14 +342,14 @@ function Navbar() {
               <li>
                 <Link
                   to="/fridge-top-cover"
-                  className="text-gray-700 hover:text-gray-900"
+                  className="font-bold text-white"
                 >
                   Fridge Cover
                 </Link>
               </li>
               <span className="text-gray-400">|</span>
               <li>
-                <Link to="/" className="text-gray-700 hover:text-gray-900">
+                <Link to="/" className="font-bold text-white ">
                   TV Cover
                 </Link>
               </li>

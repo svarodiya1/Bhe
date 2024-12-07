@@ -33,7 +33,7 @@ $pending_orders = 0;
 $recent_orders = [];
 
 // Step 3: Query to get total sales and income
-$sql = "SELECT SUM(total_amount) as total_sales, COUNT(order_id) as new_orders FROM orders WHERE payment_status = 'completed'";
+$sql = "SELECT SUM(total_amount) as total_sales, COUNT(order_id) as new_orders FROM orders WHERE status = 'completed'";
 
 $result = $conn->query($sql);
 
@@ -55,7 +55,7 @@ if ($result_income->num_rows > 0) {
 }
 
 // Step 5: Query to get pending orders
-$sql_pending = "SELECT COUNT(order_id) as pending_orders FROM orders WHERE payment_status = 'pending'";
+$sql_pending = "SELECT COUNT(order_id) as pending_orders FROM orders";
 $result_pending = $conn->query($sql_pending);
 
 if ($result_pending->num_rows > 0) {
@@ -65,7 +65,7 @@ if ($result_pending->num_rows > 0) {
 }
 
 // Step 6: Query to get recent orders (last 5 orders)
-$sql_recent_orders = "SELECT order_id, user_id, order_date, total_amount, status FROM orders ORDER BY order_date DESC LIMIT 5";
+$sql_recent_orders = "SELECT order_id, user_id, order_date, total_amount, status FROM orders ORDER BY order_id DESC ";
 $result_recent_orders = $conn->query($sql_recent_orders);
 
 if ($result_recent_orders->num_rows > 0) {

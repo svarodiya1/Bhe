@@ -8,7 +8,8 @@ function Checkout() {
     
     
     const [cart, setCart] = useState([]);
-    const [cartId, setCartid] = useState(localStorage.getItem("cart_id"));
+    const [cartId, setCartid] = useState(localStorage.getItem("cart_id") || "");
+
     
     const[totalamount,setTotalAmount] = useState();
 
@@ -30,16 +31,40 @@ function Checkout() {
 
     fetchData();
   }, []);
-
-
-
   useEffect(() => {
-    let total = 0;
-    cart.forEach(product => {
-      total += product.price * product.quantity;
-    });
-    setTotalAmount(total);
-  }, [cart]);
+    const fetchData = async () => {
+      const userId = localStorage.getItem("user_id");
+  
+      if (!userId) {
+        console.error("Error: User ID not found in local storage.");
+        alert("Please log in to continue.");
+        return;
+      }
+  
+      try {
+        const response = await $.ajax({
+          url: `${ApiURl}/getCartItems.php`,
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ user_id: userId, cart_id: cartId }),
+          dataType: "json",
+        });
+  
+        if (response.success) {
+          setCart(response.data);
+          console.log(response.data);
+        } else {
+          console.error("Error fetching data:", response.message);
+          alert(response.message || "Failed to fetch cart items.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
+  }, [cartId]); // Added dependency array for cartId
+  
 
 
 
@@ -77,6 +102,7 @@ function Checkout() {
         // Redirect or perform other actions
       } else {
         alert("Failed to confirm order. Please try again.");
+        console.log('error');
       }
     } catch (error) {
       console.error("Error submitting order:", error);

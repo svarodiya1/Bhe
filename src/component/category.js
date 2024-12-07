@@ -8,7 +8,7 @@ function Category({productsName, img}) {
 
         <>
             <div
-                className="group my-5 flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
+                className="group my-5 flex w-full max-w-xs flex-col overflow-hidden rounded-lg border bg-gradient-to-r from-purple-200 via-purple-500 to-purple-300      border-gray-100 bg-white shadow-md">
                 <a className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl" href="./table_cover.html">
                     <img className="peer absolute top-0 right-0 h-full w-full object-cover" src={img}
                         alt="product image" />
@@ -20,7 +20,7 @@ function Category({productsName, img}) {
                         <h5 className="text-xl tracking-tight text-slate-900 font-semibold text-center">{productsName}</h5>
                     </a>
                     <a href="./table_cover.html"
-                        className="flex items-center justify-center mt-5 rounded-md px-5 py-2.5 text-center bg-blue-500 text-sm font-medium text-white  focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        className="flex items-center justify-center mt-5 rounded-md px-5 py-2.5 text-center bg-blue -500 text-sm font-medium text-white  focus:outline-none focus:ring-4 focus:ring-blue-300">
                         View Products</a>
                 </div>
             </div>

@@ -3,64 +3,158 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
-include 'db.php'; // Include your database connection file
-$conn  = $con;
-// Retrieve the JSON data from the request
-$data = json_decode(file_get_contents("php://input"), true);
 
-// Validate the input data
-if (!isset($data['user_id'], $data['address'], $data['items'])) {
-    echo json_encode(['success' => false, 'message' => 'Invalid input data']);
+// Database configuration
+$server_name = "localhost";
+$db_name = "mydb"; // Replace with your database name
+$username = "root"; // Replace with your MySQL username
+$password = "123456"; // Replace with your MySQL password
+
+// Establish database connection
+$conn = new mysqli($server_name, $username, $password, $db_name);
+
+// Check connection
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $conn->connect_error]);
     exit();
 }
 
-$user_id = $data['user_id'];
-$address = $data['address'];
-$items = $data['items'];
+// Decode the incoming JSON data
+$input_data = json_decode(file_get_contents('php://input'), true);
 
-// Prepare order data
-$total_amount = 0; // Initialize total amount
-
-// Calculate total amount and prepare SQL for order items
-foreach ($items as $item) {
-    $total_amount += $item['price'] * $item['quantity'];
+if (!$input_data) {
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON data']);
+    exit();
 }
 
-// Insert into orders table
+// Extract address and order details
+$user_id = $input_data['user_id'] ?? null; // Assuming you will provide `user_id`
+$first_name = $input_data['firstName'] ?? '';
+$last_name = $input_data['lastName'] ?? '';
+$phone = $input_data['phone'] ?? '';
+$email = $input_data['email'] ?? '';
+$address_line1 = $input_data['addressLine1'] ?? '';
+$address_line2 = $input_data['addressLine2'] ?? '';
+$landmark = $input_data['landmark'] ?? '';
+$locality = $input_data['locality'] ?? '';
+$city = $input_data['city'] ?? '';
+$state = $input_data['state'] ?? '';
+$total_amount = $input_data['totalAmount'] ?? 0.0;
+$items = $input_data['items'] ?? [];
+
+// Validate required fields
+if (!$user_id || !$first_name || !$last_name || !$phone || !$email || !$address_line1 || !$locality || !$city || !$state) {
+    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+    exit();
+}
+
+// Initialize the statement variable
+$stmt = null;
+
 try {
-    // $conn->beginTransaction();
-
-    // Insert into orders table
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, address_line1, address_line2, landmark, locality_town, city, state, phone_number, email, total_amount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->execute([
-        $user_id,
-        $address['addressLine1'],
-        $address['addressLine2'],
-        $address['landmark'],
-        $address['locality'],
-        $address['city'],
-        $address['state'],
-        $address['phone'],
-        $address['email'],
-        $total_amount
-    ]);
-
-    // Get the last inserted order ID
-    $order_id = mysqli_insert_id($conn);
-
-    // Insert each order item
-    foreach ($items as $item) {
-        $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price,createdAt) VALUES (?, ?, ?, ?,NOW())");
-        $stmt->execute([$order_id, $item['product_id'], $item['quantity'], $item['price']]);
+    // Start transaction
+    if (!$conn->query("START TRANSACTION")) {
+        throw new Exception("Failed to start transaction: " . $conn->error);
     }
 
-    $conn->commit();
+    // Insert data into `customer_address` table
+    $stmt = $conn->prepare("
+        INSERT INTO customer_address
+        (user_id, first_name, last_name, phone, email, address_line1, address_line2, landmark, locality, city, state, total_amount, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    ");
+    
+    if (!$stmt) {
+        throw new Exception("Prepared statement failed: " . $conn->error);
+    }
 
-    // Respond with success and the order ID
-    echo json_encode(['success' => true, 'order_id' => $order_id]);
+    // Bind parameters
+    $stmt->bind_param(
+        "issssssssssd",
+        $user_id,
+        $first_name,
+        $last_name,
+        $phone,
+        $email,
+        $address_line1,
+        $address_line2,
+        $landmark,
+        $locality,
+        $city,
+        $state,
+        $total_amount
+    );
 
+    // Execute the statement
+    if (!$stmt->execute()) {
+        throw new Exception("Error inserting into customer_address table: " . $stmt->error);
+    }
+
+    // Fetch the inserted address ID
+    $address_id = $stmt->insert_id;
+
+    // Insert data into `orders` table
+    $stmt = $conn->prepare("
+        INSERT INTO orders (user_id,  total_amount, created_at) 
+        VALUES (?, ?, NOW())
+    ");
+    
+    if (!$stmt) {
+        throw new Exception("Prepared statement failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("iid", $user_id, $address_id, $total_amount);
+
+    if (!$stmt->execute()) {
+        throw new Exception("Error inserting into orders table: " . $stmt->error);
+    }
+
+    // Fetch the inserted order ID
+    $order_id = $stmt->insert_id;
+
+    // Insert data into `order_items` table
+    $itemStmt = $conn->prepare("
+        INSERT INTO order_items (order_id, product_id, quantity, price) 
+        VALUES (?, ?, ?, ?)
+    ");
+    
+    if (!$itemStmt) {
+        throw new Exception("Prepared statement failed: " . $conn->error);
+    }
+
+    foreach ($items as $item) {
+        $product_id = $item['product_id'];
+        $quantity = $item['quantity'];
+        $price = $item['price'];
+
+        $itemStmt->bind_param("iiid", $order_id, $product_id, $quantity, $price);
+
+        if (!$itemStmt->execute()) {
+            throw new Exception("Error inserting into order_items table: " . $itemStmt->error);
+        }
+    }
+
+    // Commit transaction
+    if (!$conn->query("COMMIT")) {
+        throw new Exception("Failed to commit transaction: " . $conn->error);
+    }
+
+    // Return success response
+    echo json_encode(['success' => true, 'message' => 'Order created successfully', 'order_id' => $order_id]);
 } catch (Exception $e) {
-    $conn->rollBack();
-    echo json_encode(['success' => false, 'message' => 'Failed to create order: ' . $e->getMessage()]);
+    // Rollback transaction in case of error
+    $conn->query("ROLLBACK");
+
+    // Log error details for debugging
+    file_put_contents("error.log", "Error: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+
+    // Return failure response
+    echo json_encode(['success' => false, 'message' => 'Failed to create order', 'error' => $e->getMessage()]);
+} finally {
+    // Close the statement if initialized
+    if ($stmt) {
+        $stmt->close();
+    }
+    $conn->close();
 }
 ?>

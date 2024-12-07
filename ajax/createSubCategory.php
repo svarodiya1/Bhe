@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Prepare the SQL statement to prevent SQL injection
-        $sql = "INSERT INTO `ecommerce_model`.`categories` (`category_name`, `main_cat_id`) VALUES (?, ?);";
+        $sql = "INSERT INTO `categories` (`category_name`, `parent_id`) VALUES (?, ?);";
 
         if ($stmt = $conn->prepare($sql)) {
             // Bind the parameters

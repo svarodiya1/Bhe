@@ -12,7 +12,7 @@ function getCartItems($cart_id) {
     global $conn; // Use the global connection variable
 
     // Prepare the SQL statement
-    $query = "SELECT a.*,b.img_path,b.name FROM ecommerce_model.cart_items a join ecommerce_model.products b ON a.product_id = b.product_id  
+    $query = "SELECT a.*,b.img_path,b.name FROM cart_items a join products b ON a.product_id = b.product_id  
               WHERE a.cart_id = ?";
 
     $stmt = $conn->prepare($query);
