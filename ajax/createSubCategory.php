@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Prepare the SQL statement to prevent SQL injection
-        $sql = "INSERT INTO `categories` (`category_name`, `parent_id`) VALUES (?, ?);";
+        $sql = "INSERT INTO `categories` (`category_name`, `category_id`) VALUES (?, ?);";
 
         if ($stmt = $conn->prepare($sql)) {
             // Bind the parameters
