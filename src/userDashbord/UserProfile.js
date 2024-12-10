@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import $ from 'jquery';
 import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import ApiURl from "../controllers/Api";
 const ProfileSection = () => {
 
       const [userData,setUserData]     = useState({})  
@@ -14,7 +15,7 @@ const ProfileSection = () => {
         let token = localStorage.getItem('token');
       
       $.ajax({
-        url: "http://localhost/react-projetcs/ecommerce_main/newEcomm/src/ajax/getUser.php",
+        url:`${ApiURl}/getUser.php`,
         method: "GET",
         
         data: {

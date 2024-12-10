@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ApiURl from "../controllers/Api";
 
 const DashboardSection = () => {
   const [data, setData] = useState({
@@ -23,9 +24,7 @@ const DashboardSection = () => {
           return;
         }
 
-        const response = await fetch(
-          `http://localhost/ecommere_react_with_php-main/ajax/getUserDataDashboard.php?user_id=${userId}`
-        );
+        const response = await fetch(`${ApiURl}/getUserDataDashboard.php?user_id=${userId}`);
         const result = await response.json();
 
         if (result.success) {
@@ -62,13 +61,15 @@ const DashboardSection = () => {
 
       {/* Statistics Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {[ 
+        {[
           { label: "Total Orders", value: data.totalOrders },
           { label: "Total Spend", value: `₹${data.totalSpend}` },
           { label: "Pending Orders", value: data.pendingOrders },
         ].map((stat, index) => (
           <div key={index} className="bg-white p-6 rounded-lg shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-700">{stat.label}</h3>
+            <h3 className="text-lg font-semibold text-gray-700">
+              {stat.label}
+            </h3>
             <p className="mt-2 text-3xl font-bold">{stat.value}</p>
           </div>
         ))}
@@ -76,7 +77,9 @@ const DashboardSection = () => {
 
       {/* Recent Orders Section */}
       <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">Recent Orders</h3>
+        <h3 className="text-xl font-semibold text-gray-700 mb-4">
+          Recent Orders
+        </h3>
         <ul className="space-y-4">
           {data.recentOrders.length > 0 ? (
             data.recentOrders.map((order) => (

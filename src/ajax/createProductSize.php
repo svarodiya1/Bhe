@@ -14,7 +14,7 @@ header('Content-Type: application/json');
 // Check the request method
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get the posted data for product size insertion
-    $categoryId = isset($_POST['category_id']) ? intval($_POST['category_id']) : 0;
+    $categoryId = isset($_POST['main_category_id']) ? intval($_POST['main_category_id']) : 0;
     $subCategoryId = isset($_POST['sub_category_id']) ? intval($_POST['sub_category_id']) : 0;
     $size = isset($_POST['size']) ? trim($_POST['size']) : '';
 
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmtCheck->close();
 
     // Insert the size into the product_size table
-    $queryInsert = "INSERT INTO product_size (category_id, sub_category_id, size) VALUES (?, ?, ?)";
+    $queryInsert = "INSERT INTO product_size (main_category_id, sub_category_id, size) VALUES (?, ?, ?)";
     $stmtInsert = $con->prepare($queryInsert);
     $stmtInsert->bind_param("iis", $categoryId, $subCategoryId, $size);
 

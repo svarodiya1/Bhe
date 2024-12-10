@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
 import backgrounde from "../images/background.png"; // Import background image
+// import fridgeMatImg from "../images/fridge-mat.jpg"; // Example image import
+// import tableCoverImg from "../images/table-cover.jpg"; // Example image import
+// import mattressCoverImg from "../images/mattress-cover.jpg"; // Example image import
 
 function Sidebar() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,16 +14,19 @@ function Sidebar() {
       title: "FRIDGE MAT",
       description:
         "We are presenting a widespread variety of different colors. Fridge Mat is fabricated in accordance with present market trends. It uses superior quality fabric and progressive technology.",
+      // image: fridgeMatImg   ,
     },
     {
       title: "TABLE COVER",
       description:
         "We are presenting a widespread variety of different colors. Fridge Mat is fabricated in accordance with present market trends. It uses superior quality fabric and progressive technology.",
+      // image: tableCoverImg,
     },
     {
       title: "MATTRESS COVER",
       description:
         "We are presenting a widespread variety of different colors. Fridge Mat is fabricated in accordance with present market trends. It uses superior quality fabric and progressive technology.",
+      // image: mattressCoverImg,
     },
   ];
 
@@ -57,18 +63,27 @@ function Sidebar() {
           {carouselContent.map((content, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-white max-w-full px-4 sm:px-8"
+              className="flex flex-col md:flex-row items-center text-white max-w-full px-4 sm:px-8"
             >
-              {/* Title */}
-              <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-right">
-                {content.title}
-              </h1>
+              {/* Image Section */}
+              <div className="w-full md:w-1/2 mb-4 md:mb-0">
+                <img
+                  src={content.image}
+                  alt={content.title}
+                  className="rounded-lg shadow-lg max-h-[300px] object-cover w-full"
+                />
+              </div>
 
-              {/* Description */}
-              <div className="text-sm md:text-base leading-snug space-y-1 text-center">
-                {content.description.split(".").map((line, idx) =>
-                  line.trim() ? <p key={idx}>{line}.</p> : null
-                )}
+              {/* Text Section */}
+              <div className="w-full md:w-1/2 flex flex-col items-center md:items-start">
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-right">
+                  {content.title}
+                </h1>
+                <div className="text-sm md:text-base leading-snug space-y-1 text-center md:text-left">
+                  {content.description.split(".").map((line, idx) =>
+                    line.trim() ? <p key={idx}>{line}.</p> : null
+                  )}
+                </div>
               </div>
             </div>
           ))}
