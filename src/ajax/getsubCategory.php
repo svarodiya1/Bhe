@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $mainCategoryId = intval($_GET['category_id']); // Sanitize and ensure ID is an integer
 
         // SQL query to fetch subcategories for the given main category ID
-        $query = "SELECT category_name FROM categories WHERE parent_id = $mainCategoryId;";
+        $query = "SELECT category_id,category_name FROM categories WHERE parent_id = $mainCategoryId;";
     } else {
         // Fallback query to fetch all main categories
         $query = "SELECT category_name FROM categories WHERE parent_id IS NULL;";

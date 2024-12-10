@@ -53,27 +53,34 @@ function AddProductSize() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent form reload
-
+  
     // Basic input validation
     if (!categoryId || !subCategoryId || size.trim() === "") {
       setMessage("All fields are required.");
       return;
     }
-
+  
+    // Log the data being sent to the backend
+    console.log({
+      main_category_id: categoryId,
+      sub_category_id: subCategoryId,
+      size: size.trim(),
+    });
+  
     // Submit size to the database
     try {
-      const response = await fetch("http://localhost/ecommere_react_with_php-main/src/ajax/addSize.php", {
+      const response = await fetch(`${ApiURl}/addSize.php`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          category_id: categoryId,
+          main_category_id: categoryId,                     
           sub_category_id: subCategoryId,
-          size: size,
+          size: size.trim(),
         }),
       });
+  
       const data = await response.json();
+      console.log("Response from backend:", data); // Log response to check for issues
+  
       if (data.status === "success") {
         alert("Size added successfully");
         setMessage("Size added successfully!");
@@ -86,7 +93,7 @@ function AddProductSize() {
       setMessage("An error occurred while adding the size.");
     }
   };
-
+  
   return (
     <div className="bg-gray-100">
       <section className="lg:col-span-2 overflow-x-hidden bg-white border border-gray-900 mx-7">

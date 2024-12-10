@@ -40,7 +40,7 @@ function AddSubCategory() {
     }
    
     $.ajax({
-      url: "http://localhost/ecommere_react_with_php-main/src/ajax/createSubCategory.php",
+      url: `${ApiURl}/createSubCategory.php`,
       type: "POST",
       data: {
         category_name:categoryName,

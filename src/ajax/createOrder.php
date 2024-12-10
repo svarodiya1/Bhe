@@ -4,18 +4,12 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-// Database configuration
-$server_name = "localhost";
-$db_name = "mydb"; // Replace with your database name
-$username = "root"; // Replace with your MySQL username
-$password = "123456"; // Replace with your MySQL password
-
-// Establish database connection
-$conn = new mysqli($server_name, $username, $password, $db_name);
+// Include your database connection
+include "./db.php"; 
 
 // Check connection
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $conn->connect_error]);
+if ($con->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $con->connect_error]);
     exit();
 }
 
@@ -53,19 +47,19 @@ $stmt = null;
 
 try {
     // Start transaction
-    if (!$conn->query("START TRANSACTION")) {
-        throw new Exception("Failed to start transaction: " . $conn->error);
+    if (!$con->query("START TRANSACTION")) {
+        throw new Exception("Failed to start transaction: " . $con->error);
     }
 
     // Insert data into `customer_address` table
-    $stmt = $conn->prepare("
+    $stmt = $con->prepare("
         INSERT INTO customer_address
         (user_id, first_name, last_name, phone, email, address_line1, address_line2, landmark, locality, city, state, total_amount, created_at) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     ");
     
     if (!$stmt) {
-        throw new Exception("Prepared statement failed: " . $conn->error);
+        throw new Exception("Prepared statement failed: " . $con->error);
     }
 
     // Bind parameters
@@ -94,13 +88,13 @@ try {
     $address_id = $stmt->insert_id;
 
     // Insert data into `orders` table
-    $stmt = $conn->prepare("
+    $stmt = $con->prepare("
         INSERT INTO orders (user_id,  total_amount, created_at) 
         VALUES (?, ?, NOW())
     ");
     
     if (!$stmt) {
-        throw new Exception("Prepared statement failed: " . $conn->error);
+        throw new Exception("Prepared statement failed: " . $con->error);
     }
 
     $stmt->bind_param("iid", $user_id, $address_id, $total_amount);
@@ -113,13 +107,13 @@ try {
     $order_id = $stmt->insert_id;
 
     // Insert data into `order_items` table
-    $itemStmt = $conn->prepare("
+    $itemStmt = $con->prepare("
         INSERT INTO order_items (order_id, product_id, quantity, price) 
         VALUES (?, ?, ?, ?)
     ");
     
     if (!$itemStmt) {
-        throw new Exception("Prepared statement failed: " . $conn->error);
+        throw new Exception("Prepared statement failed: " . $con->error);
     }
 
     foreach ($items as $item) {
@@ -135,15 +129,15 @@ try {
     }
 
     // Commit transaction
-    if (!$conn->query("COMMIT")) {
-        throw new Exception("Failed to commit transaction: " . $conn->error);
+    if (!$con->query("COMMIT")) {
+        throw new Exception("Failed to commit transaction: " . $con->error);
     }
 
     // Return success response
     echo json_encode(['success' => true, 'message' => 'Order created successfully', 'order_id' => $order_id]);
 } catch (Exception $e) {
     // Rollback transaction in case of error
-    $conn->query("ROLLBACK");
+    $con->query("ROLLBACK");
 
     // Log error details for debugging
     file_put_contents("error.log", "Error: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
@@ -155,6 +149,6 @@ try {
     if ($stmt) {
         $stmt->close();
     }
-    $conn->close();
+    $con->close();
 }
 ?>
