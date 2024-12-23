@@ -141,8 +141,8 @@ function AddProductSize() {
                   {subCategories.map((row) => (
                     <option
                       className="text-black"
-                      key={row.id}
-                      value={row.id}
+                      key={row.category_id}
+                      value={row.category_id}
                     >
                       {row.category_name}
                     </option>

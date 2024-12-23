@@ -30,7 +30,7 @@ function Navbar() {
       {/* <!-- Logo --> */}
       <div className="font-bold text-gray-900 md:w-24 w-16">
         <Link to="/" className="md:text-xl text-lg font-bold">
-          <img src={bhatiaLogo} width="" alt="" />
+          <img src="https://bhatiaemporium.com/wp-content/uploads/2024/02/cropped-Bhagtia-Emporium-LOGO-1.png" width="" alt="" />
         </Link>
       </div>
             {/* <!-- Search Bar (Visible on larger screens) --> */}

@@ -21,6 +21,7 @@ const ProductOverview = () => {
         const response = await $.getJSON(
           `${ApiURl}/getProducts.php?product=${id}`
         );
+        console.log(response)
         setProduct(response.products[0]);
         setprice(product.price);
       } catch (error) {
