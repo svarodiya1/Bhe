@@ -16,6 +16,7 @@ function AddProduct() {
   const [currentSubCategoryId, setCurrentSubCategoryId] = useState(0);
   const [imageFile, setImageFile] = useState(null);
   const [stockQuantity, setStockQuantity] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // State to track selected sizes and their prices
   const [selectedSizes, setSelectedSizes] = useState([]);
@@ -31,9 +32,11 @@ function AddProduct() {
       }
     };
 
-    const fetchSizes = async () => {
+    const fetchSizes = async (subCategoryId) => {
       try {
-        const response = await $.getJSON(`${ApiURl}/getSizes.php`);
+        const response = await $.getJSON(
+          `${ApiURl}/getSizes.php?sub_category_id=${subCategoryId}`
+        );
         if (response.success) {
           setSizeOptions(response.data); // Populate size options
         } else {
@@ -45,13 +48,16 @@ function AddProduct() {
     };
 
     fetchCategories();
-    fetchSizes();
-  }, []);
+    // Fetch sizes for the current sub-category (if any)
+    if (currentSubCategoryId) {
+      fetchSizes(currentSubCategoryId);
+    }
+  }, [currentSubCategoryId]); // Re-run when the sub-category changes
 
   const handleCategoryChange = (e) => {
     const selectedCategoryId = e.target.value;
     setCurrentCategoryId(selectedCategoryId);
-    setCurrentSubCategoryId(0);
+    setCurrentSubCategoryId(0); // Reset sub-category when category changes
     fetchSubCategories(selectedCategoryId);
   };
 
@@ -64,17 +70,23 @@ function AddProduct() {
       const response = await $.getJSON(
         `${ApiURl}/getsubCategory.php?category_id=${categoryId}`
       );
-
-      console.log(response);
       setSubCatData(response.data);
     } catch (error) {
       console.error("Error fetching sub-category data:", error);
     }
   };
 
+  const handleSubCategoryChange = (e) => {
+    const subCategoryId = e.target.value;
+    setCurrentSubCategoryId(subCategoryId);
+  };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    setImageFile(file);
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file)); // Create and set preview URL
+    }
   };
 
   const handleSizeChange = (e) => {
@@ -97,7 +109,7 @@ function AddProduct() {
 
   const handlePriceChange = (e, size) => {
     const newPrice = e.target.value;
-    setProductPrice((prevPrices) => ({
+    setSizePrices((prevPrices) => ({
       ...prevPrices,
       [size]: newPrice, // Update price for the specific size
     }));
@@ -105,7 +117,7 @@ function AddProduct() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     const formData = new FormData();
     formData.append("productName", productName);
     formData.append("productPrice", parseInt(productPrice)); // This should be for the default price, if needed
@@ -115,13 +127,13 @@ function AddProduct() {
     formData.append("currentSubCategoryId", parseInt(currentSubCategoryId));
     formData.append("stock_quantity", stockQuantity);
     formData.append("image", imageFile);
-  
+
     // Append sizes and their respective prices to form data
     selectedSizes.forEach((size) => {
       formData.append("sizes[]", size);
-      formData.append(`price_${size}`, productPrice[size] || 0); // Use productPrice for the size prices
+      formData.append(`price_${size}`, sizePrices[size] || 0); // Use sizePrices for the size prices
     });
-  
+
     // Send the data using AJAX to the backend
     $.ajax({
       url: `${ApiURl}/createProduct.php`,
@@ -199,7 +211,7 @@ function AddProduct() {
                   </label>
                   <select
                     id="sub_category"
-                    onChange={(e) => setCurrentSubCategoryId(e.target.value)}
+                    onChange={handleSubCategoryChange} // Update sub-category handler
                     value={currentSubCategoryId}
                     disabled={!currentCategoryId}
                     className="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
@@ -215,6 +227,7 @@ function AddProduct() {
                   </select>
                 </div>
 
+                {/* Rest of your form elements */}
                 <div>
                   <label
                     htmlFor="size"
@@ -246,40 +259,41 @@ function AddProduct() {
                   </button>
                 </div>
 
-               {/* Display added sizes */}
-<div>
-  <label className="block mb-2 text-sm font-medium text-gray-900">
-    Added Sizes
-  </label>
-  <ul className="space-y-4">
-    {selectedSizes.map((addedSize, index) => (
-      <li
-        key={index}
-        className="flex flex-col sm:flex-row justify-between items-center sm:space-x-4 space-y-2 sm:space-y-0"
-      >
-        <span className="w-full sm:w-auto text-gray-900">{addedSize}</span>
-        
-        {/* Price input for each size */}
-        <input
-          type="number"
-          placeholder="Price"
-          value={productPrice[addedSize] || ""}
-          onChange={(e) => handlePriceChange(e, addedSize)}
-          className="ml-4 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full sm:w-32"
-        />
-        
-        <button
-          type="button"
-          onClick={() => handleRemoveSize(addedSize)}
-          className="text-red-500 w-full sm:w-auto text-center mt-2 sm:mt-0"
-        >
-          Remove
-        </button>
-      </li>
-    ))}
-  </ul>
-</div>
+                {/* Display added sizes */}
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Added Sizes
+                  </label>
+                  <ul className="space-y-4">
+                    {selectedSizes.map((addedSize, index) => (
+                      <li
+                        key={index}
+                        className="flex flex-col sm:flex-row justify-between items-center sm:space-x-4 space-y-2 sm:space-y-0"
+                      >
+                        <span className="w-full sm:w-auto text-gray-900">
+                          {addedSize}
+                        </span>
 
+                        {/* Price input for each size */}
+                        <input
+                          type="number"
+                          placeholder="Price"
+                          value={sizePrices[addedSize] || ""}
+                          onChange={(e) => handlePriceChange(e, addedSize)}
+                          className="ml-4 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full sm:w-32"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSize(addedSize)}
+                          className="text-red-500 w-full sm:w-auto text-center mt-2 sm:mt-0"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
                 <div className="w-full">
                   <label
@@ -293,38 +307,23 @@ function AddProduct() {
                     id="brand"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    className="border border-gray-
-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                    className="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
                     placeholder="Product brand"
                     required
                   />
                 </div>
 
-                {/* <div className="w-full">
-                  <label
-                    htmlFor="price"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Price
-                  </label>
-                  <input
-                    type="number"
-                    id="price"
-                    value={productPrice}
-                    onChange={(e) => setProductPrice(e.target.value)}
-                    className="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                    placeholder="₹ 2999"
-                    required
-                  />
-                </div> */}
+                {/* Other input fields for description, etc. */}
               </div>
             </div>
           </section>
 
+          {/* Image Upload Section */}
           <section className="bg-white">
             <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
               <label
-                htmlFor="dropzone-file"
+                html
+                For="dropzone-file"
                 className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -344,6 +343,18 @@ function AddProduct() {
                   accept="image/png, image/jpeg, image/gif"
                 />
               </label>
+
+              {/* Display Image Preview */}
+              {imagePreview && (
+                <div className="mt-4">
+                  <img
+                    src={imagePreview}
+                    alt="Uploaded Preview"
+                    className="w-full h-64 object-contain border rounded-lg"
+                  />
+                </div>
+              )}
+
               <button
                 type="submit"
                 className="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg"

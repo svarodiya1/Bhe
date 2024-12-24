@@ -40,8 +40,8 @@ try {
     }
 
     // Handle file upload
-    $uploadDir = "uploads/"; // Make sure this folder exists
-    $imagePath = null;
+    $uploadDir = "images/"; // Make sure this folder exists
+    $imageName = null;
 
     if ($image && $image['error'] === UPLOAD_ERR_OK) {
         $imageName = uniqid() . "_" . basename($image["name"]);
@@ -65,7 +65,7 @@ try {
     }
 
     // Insert product details into the products table
-    $stmt = $con->prepare("INSERT INTO products (name, description, brand, category_id, sub_category_id,  img_path) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $con->prepare("INSERT INTO products (name, description, brand, category_id, sub_category_id, img_path) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param(
         "sssiis",
         $productName,
@@ -73,7 +73,7 @@ try {
         $brand,
         $categoryId,
         $subCategoryId,
-        $imagePath
+        $imageName // Store only the filename
     );
 
     if (!$stmt->execute()) {
@@ -85,13 +85,9 @@ try {
     // Get the ID of the inserted product
     $productId = $con->insert_id;
 
-     error_log("Sizes array: " . print_r($sizes, true));
+    error_log("Sizes array: " . print_r($sizes, true));
     error_log("Prices array: " . print_r($prices, true));
 
-    // Insert product details into the products table
-    // Assuming the insert query for the product table is here
-    // Example: $stmt = $con->prepare("INSERT INTO products (product_name, product_price, description, brand, category_id, sub_category_id, stock_quantity, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    
     // Insert sizes and prices into the product_price table
     $stmtSize = $con->prepare("INSERT INTO product_price (main_category_id, sub_category_id, product_id, size, price) VALUES (?, ?, ?, ?, ?)");
 

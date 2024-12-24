@@ -11,13 +11,25 @@ import { IoMdHeartEmpty } from "react-icons/io";
 import bhatiaLogo from "../images/bhatia-emporium.jpg";
 import LogoutButton from "./LogoutButton";
 import { useHistory } from 'react-router-dom';
+import SearchBar from "./Searchbar"
 function Navbar() {
   const toggleMenu = () => {
     document.getElementById("mobile-menu").classList.toggle("hidden");
   };
 
   // const [isMenuVisible, setMenuVisible] = useState(false);
+const fetchSearchResults = async (query) => {
+    const response = await fetch('/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
 
+    const data = await response.json();
+    console.log(data); // Handle data as needed
+  };
   // const toggleMenu = () => {
   //   setMenuVisible(prevState => !prevState);
   // };
@@ -37,11 +49,8 @@ function Navbar() {
             <div className="lg:block w-2/4">
               {/* <input type="text" placeholder="Enter your product name..." className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-gray-200" /> */}
               <div className="relative w-full max-w-xl">
-                <input
-                  type="text"
-                  placeholder="Search here..."
-                  className="w-full py-2 pl-4 pr-10 text-gray-700 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:border-white focus:ring-1 focus:ring-indigo-500"
-                />
+                {/* Dynamic SearchBar */}
+                <SearchBar onsearch={fetchSearchResults}/>
                 <button className="absolute inset-y-0 md:right-2 right-1 flex items-center pr-3">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

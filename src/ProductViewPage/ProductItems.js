@@ -49,14 +49,12 @@ console.log("products"+products);
             <div className="flex flex-wrap">
                 <h1> </h1>
 
-
-
                 {
                             products.map((product,index) =>{
-
+                                        console.log(product);
                                 return(
                                 <Link to={`/ProductOverview/${product.product_id}`}>
-                                <Products key={index} product_id={product.product_id}  categoryName='Table Cover' productImages={`${imgLocation}/${product.img_path}`} productName={product.name} discountPrice={product.price} actualPrice={499} discountPercentage={20} />
+                                <Products key={index} product_id={product.product_id}  categoryName={product.category_name} productImages={`${imgLocation}/${product.img_path}`} productName={product.name} discountPrice={product.price}  />
                                 </Link>
                                 )
                             })

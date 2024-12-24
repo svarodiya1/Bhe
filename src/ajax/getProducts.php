@@ -22,21 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
 
-        $query = "SELECT distinct a.* 
-FROM products a 
-JOIN categories b ON a.category_id = b.parent_id  
-JOIN main_category c ON b.parent_id = c.id
-WHERE c.id =$mainCatId
+        $query = "SELECT  a.* , b.category_name
+         FROM products a 
+         JOIN categories b ON a.category_id = b.parent_id  
+         JOIN main_category c ON b.parent_id = c.id
+         WHERE c.id =$mainCatId
         order by product_id desc;";
     } elseif(isset($_GET['product'])){
 
         
         $product = $_GET['product'];
 
-        $query = "SELECT distinct a.* FROM products a 
+        $query = "SELECT  a.*, d.price, d.size, b.category_name FROM products a 
             join categories b on a.category_id = b.parent_id  
             join main_category c on b.parent_id = c.id
-        where a.product_id=$product
+            join product_price d on a.product_id = d.product_id
+        where a.product_id= $product
         order by product_id desc;";
 
     }
@@ -45,7 +46,7 @@ WHERE c.id =$mainCatId
     
     else {
 
-        $query = "SELECT * FROM products a 
+        $query = "SELECT distinct* FROM products a 
             join categories b on a.category_id = b.category_id  
 
             join main_category c on b.category_id = c.id

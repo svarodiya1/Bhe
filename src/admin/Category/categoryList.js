@@ -26,6 +26,8 @@ const CategoryList = () => {
 
     const data = React.useMemo(() => catData, [catData]);
 
+console.log(data)
+
     const columns = React.useMemo(
         () => [
             {
@@ -56,21 +58,21 @@ const CategoryList = () => {
                     <div>
                         <button
                             type="button"
-                            className="text-blue-700 bg-transparent focus:ring-4 focus:ring-blue-300 text-xl rounded-lg text-sm px-2 me-2 mb-2 focus:outline-none"
+                            className="text-blue-700 bg-transparent focus:ring-4 focus:ring-blue-300 rounded-lg text-sm px-2 me-2 mb-2 focus:outline-none"
                             aria-label="View Category"
                         >
                             <IoEyeOutline />
                         </button>
                         <button
                             type="button"
-                            className="focus:outline-none text-green-700 bg-transparent text-xl rounded-lg text-sm px-2 me-2 mb-2"
+                            className="focus:outline-none text-green-700 bg-transparent rounded-lg text-sm px-2 me-2 mb-2"
                             aria-label="Edit Category"
                         >
                             <FiEdit />
                         </button>
                         <button
                             type="button"
-                            className="focus:outline-none text-red-700 bg-transparent text-xl rounded-lg text-sm px-2"
+                            className="focus:outline-none text-red-700 bg-transparent rounded-lg text-sm px-2"
                             aria-label="Delete Category"
                         >
                             <RiDeleteBinLine />

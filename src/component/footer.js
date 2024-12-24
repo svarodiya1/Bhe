@@ -62,6 +62,12 @@ function Footer() {
                             </p>
                         </div>
                     </div>
+                     {/* Gray Layer with Company Name */}
+                     <div className="bg-500 text-center py-6 w-full">
+                        <p className="text-black text-xl font-bold">
+                            Powered by @ Algo2Bots Infotech
+                        </p>
+                    </div>
                 </footer>
             </div>
         </>

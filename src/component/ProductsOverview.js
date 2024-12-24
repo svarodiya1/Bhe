@@ -1,54 +1,78 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import $ from 'jquery'; 
+import $ from "jquery";
 import ApiURl from "../controllers/Api";
 import imgLocation from "../controllers/imagePath";
 
 const ProductOverview = () => {
   const { id } = useParams();
   const [product, setProduct] = useState({});
-  const [quantity, setQuantity] = useState(1);  // Default quantity is 1
-  const [cartMessage, setCartMessage] = useState("");  // Feedback message
-    const [cartId, setCartId] = useState(localStorage.getItem("cart_id")); // Feedback
-    const [price, setprice] = useState(0);
+  const [cartMessage, setCartMessage] = useState(""); // Feedback message
+  const [cartId, setCartId] = useState(localStorage.getItem("cart_id")); // Feedback
+  const [sizes, setSizes] = useState([]); // Array of sizes
+  const [prices, setPrices] = useState([]); // Prices corresponding to sizes
+  const [quantityPerSize, setQuantityPerSize] = useState([]); // Dynamic quantity for each size
+  const [selectedSizes, setSelectedSizes] = useState([]); // Array of selected sizes
 
-
-
-
+  // Fetch product data from the API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await $.getJSON(
-          `${ApiURl}/getProducts.php?product=${id}`
-        );
-        console.log(response)
+        const response = await $.getJSON(`${ApiURl}/getProducts.php?product=${id}`);
         setProduct(response.products[0]);
-        setprice(product.price);
+
+        // Set sizes and prices for the product
+        const availableSizes = response.products[0].sizes || [];
+        const productPrices = response.products[0].prices || [];
+
+        setSizes(availableSizes);
+        setPrices(productPrices);
+
+        // Initialize quantities for each size
+        const initialQuantities = new Array(availableSizes.length).fill(1);
+        setQuantityPerSize(initialQuantities);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching product data:", error);
       }
     };
 
     fetchData();
   }, [id]);
 
-  // Handle quantity change
-  const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
+  // Handle size selection
+  const handleSizeChange = (e) => {
+    const { value, checked } = e.target;
+    setSelectedSizes((prevState) =>
+      checked ? [...prevState, value] : prevState.filter((size) => size !== value)
+    );
+  };
+
+  // Handle quantity change for each size
+  const handleQuantityChange = (index, value) => {
+    const updatedQuantities = [...quantityPerSize];
+    updatedQuantities[index] = value;
+    setQuantityPerSize(updatedQuantities);
   };
 
   // Handle Add to Cart click
   const handleAddToCart = async () => {
     try {
+      // Calculate the total price based on selected sizes and quantities
+      const totalPrice = selectedSizes.reduce((acc, size, index) => {
+        const sizeIndex = sizes.indexOf(size);
+        const sizePrice = prices[sizeIndex]; // Price for selected size
+        const quantity = quantityPerSize[index]; // Quantity for the size
+        return acc + sizePrice * quantity;
+      }, 0);
+
+      // Make the POST request to add product to cart
       const response = await $.post(`${ApiURl}/addToCart.php`, {
-        product_id: product.product_id,  // Assuming product has product_id
-        quantity: quantity,              // Quantity from input
-        cart_id: cartId,     
-        price:price,
-        total:price*quantity                 // Replace with actual cart_id (user/session-based)
+        product_id: product.product_id, // Product ID from product details
+        cart_id: cartId, // Cart ID from localStorage or session
+        selected_sizes: selectedSizes, // Selected sizes array
+        total_price: totalPrice // Total price calculated
       });
 
-      // Handle success response
       if (response.status === "success") {
         setCartMessage("Product added to cart successfully!");
       } else {
@@ -64,9 +88,9 @@ const ProductOverview = () => {
     <div className="max-w-8xl mx-auto md:p-8 p-2 bg-gray-100 shadow-lg rounded-lg">
       <h1>{id}</h1>
 
-      <div className="md:flex">
+      <div className="flex flex-col md:flex-row">
         {/* Product Image */}
-        <div className="md:w-1/2 p-4">
+        <div className="md:w-1/3 p-4">
           <img
             className="w-full h-auto object-cover rounded-lg cursor-pointer"
             src={`${imgLocation}/${product.img_path}`}
@@ -74,31 +98,65 @@ const ProductOverview = () => {
           />
         </div>
 
-        {/* Product Info */}
-        <div className="md:w-1/2 p-4">
+        {/* Sizes, Prices, and Quantity */}
+        <div className="md:w-2/3 p-4">
           <p className="text-gray-600 mb-1">{product.category_name}</p>
           <h2 className="text-3xl font-semibold mb-4">{product.name}</h2>
 
-          {/* Quantity Input */}
-          <div>
-            <label className="text-gray-700 font-semibold mr-2">Quantity:</label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="w-20 h-7 border rounded-md focus:outline-none"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Sizes */}
+            <div>
+              <h3 className="text-gray-700 font-semibold">Select Sizes:</h3>
+              {sizes.map((size, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id={`size-${index}`}
+                    value={size}
+                    onChange={handleSizeChange}
+                  />
+                  <label htmlFor={`size-${index}`} className="text-gray-600 ml-2">
+                    {size}
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            {/* Prices */}
+            <div>
+              <h3 className="text-gray-700 font-semibold">Prices:</h3>
+              {prices.map((price, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <span className="text-gray-600">₹{price}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <h3 className="text-gray-700 font-semibold">Quantity:</h3>
+              {selectedSizes.map((size, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <label htmlFor={`quantity-${index}`} className="text-gray-600 ml-2">
+                    {size}
+                  </label>
+                  <input
+                    type="number"
+                    id={`quantity-${index}`}
+                    min="1"
+                    value={quantityPerSize[index] || 1}
+                    onChange={(e) => handleQuantityChange(index, e.target.value)}
+                    className="w-20 ml-2 border rounded-md focus:outline-none"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Product Description */}
-          <div className="mb-4 mt-5">
+          <div className="mt-5">
             <h3 className="text-gray-700 font-semibold">Product Description:</h3>
             <p className="text-gray-600 mt-2">{product.description}</p>
-          </div>
-          <div className="mb-4 flex mt-5">
-            <h5 className="text-gray-700 font-semibold">Size:</h5>
-            <p className="text-gray-600 mt-2">{product.size}</p>
           </div>
 
           {/* Action Buttons */}
@@ -108,9 +166,6 @@ const ProductOverview = () => {
               onClick={handleAddToCart}
             >
               Add to Cart
-            </button>
-            <button className="px-6 py-3 w-2/4 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 focus:outline-none">
-              Wishlist
             </button>
           </div>
 

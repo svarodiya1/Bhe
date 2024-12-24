@@ -25,10 +25,14 @@ function Products(props) {
                     <h2 className="mb-2 md:text-base text-sm  text-gray-900">{props.productName}</h2>
                     {/* <p className="mb-2 text-xs text-gray-700">{props.productDescription}</p> */}
                     <div className="flex items-center">
-                        <p className="mr-2 text-md font-semibold text-gray-900">&#8377;{props.discountPrice}</p>
-                        <p className="text-md  font-medium text-gray-500 line-through">&#8377;{props.actualPrice}
+                        <p className="mr-2 text-md font-semibold text-gray-900">{props.discountPrice}</p>
+                        <p className="text-md  font-medium text-gray-500 line-through">{props.actualPrice}
                         </p>
-                        <p className="ml-auto text-sm font-medium text-green-500">{props.discountPercentage}% off</p>
+                        <div className="mt-1 text-center">
+                            <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                                View Details
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {/* <div>

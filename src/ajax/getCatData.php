@@ -14,7 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
 
-    $query = "SELECT a.*,b.category_name as main_category_name FROM categories a join  main_category b ON a.category_id =b.id;;";
+    $query = "SELECT a.*, b.category_name AS main_category_name
+              FROM categories a
+              LEFT JOIN main_category b ON a.parent_id = b.id;";
 
     $result = $con->query($query);
 
