@@ -22,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
 
-        $query = "SELECT distinct a.* , b.category_name
+        $query = "SELECT  a.* , b.category_name
          FROM products a 
-         JOIN categories b ON a.category_id = b.parent_id  
+         JOIN categories b ON a.sub_category_id = b.category_id  
          JOIN main_category c ON b.parent_id = c.id
          WHERE c.id =$mainCatId
         order by product_id desc;";
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         
         $product = $_GET['product'];
 
-        $query = "SELECT distinct a.*, d.price, d.size, b.category_name FROM products a 
+        $query = "SELECT  a.*, d.price, d.size, b.category_name FROM products a 
             join categories b on a.category_id = b.parent_id  
             join main_category c on b.parent_id = c.id
             join product_price d on a.product_id = d.product_id
