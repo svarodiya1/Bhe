@@ -313,7 +313,23 @@ function AddProduct() {
                   />
                 </div>
 
-                {/* Other input fields for description, etc. */}
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="description"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    rows="4"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="block p-2.5 w-full text-sm text-gray-900 border border-gray-300 rounded-lg"
+                    placeholder="Type product description..."
+                    required
+                  ></textarea>
+                </div>
               </div>
             </div>
           </section>

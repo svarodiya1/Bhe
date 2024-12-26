@@ -4,76 +4,79 @@ include "./db.php";
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-
-header("Access-Control-Allow-Methods: POST, OPTIONS, GET"); // Include GET if you're making a GET request
+header("Access-Control-Allow-Methods: POST, OPTIONS, GET");
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-
+$response = ["success" => false];
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $mainCatId = isset($_GET['mainCatId']) ? intval($_GET['mainCatId']) : null;
+    $product = isset($_GET['product']) ? intval($_GET['product']) : null;
 
+    try {
+        if ($mainCatId) {
+            // Query for fetching products by main category ID
+            $query = "
+                SELECT a.*, b.category_name
+                FROM products a
+                LEFT JOIN categories b ON a.sub_category_id = b.category_id  -- Use LEFT JOIN to include products without categories
+                LEFT JOIN main_category c ON b.parent_id = c.id
+                WHERE c.id = ?
+                ORDER BY a.product_id DESC
+            ";
 
-
-
-
-    if (isset($_GET['mainCatId'])) {
-
-        $mainCatId = $_GET['mainCatId'];
-
-
-
-        $query = "SELECT  a.* , b.category_name
-         FROM products a 
-         JOIN categories b ON a.sub_category_id = b.category_id  
-         JOIN main_category c ON b.parent_id = c.id
-         WHERE c.id =$mainCatId
-        order by product_id desc;";
-    } elseif(isset($_GET['product'])){
-
+            $stmt = $con->prepare($query);
+            $stmt->bind_param("i", $mainCatId);
+        } elseif ($product) {
+            // Query for fetching a specific product
+            $query = "
+            SELECT a.*, d.price, d.size, b.category_name
+            FROM products a
+            LEFT JOIN categories b ON a.category_id = b.category_id
+            LEFT JOIN main_category c ON b.parent_id = c.id
+            LEFT JOIN product_price d ON a.product_id = d.product_id
+            WHERE a.product_id = ?
+            ORDER BY d.size;  -- Order by size if you want to group them
+         ";
         
-        $product = $_GET['product'];
+            $stmt = $con->prepare($query);
+            $stmt->bind_param("i", $product); // Bind the product_id to the query
+        }
+        else {
+            // Default query to fetch all products
+            $query = "
+                SELECT DISTINCT a.*, b.category_name
+                FROM products a
+                LEFT JOIN categories b ON a.category_id = b.category_id  -- Use LEFT JOIN to ensure we get products even without categories
+                LEFT JOIN main_category c ON b.parent_id = c.id
+                ORDER BY a.product_id DESC
+            ";
 
-        $query = "SELECT  a.*, d.price, d.size, b.category_name FROM products a 
-            join categories b on a.category_id = b.parent_id  
-            join main_category c on b.parent_id = c.id
-            join product_price d on a.product_id = d.product_id
-        where a.product_id= $product
-        order by product_id desc;";
+            $stmt = $con->prepare($query);
+        }
 
-    }
-    
-    
-    
-    else {
+        // Execute query
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $query = "SELECT distinct* FROM products a 
-            join categories b on a.category_id = b.category_id  
-
-            join main_category c on b.category_id = c.id
-
-            order by product_id desc;";
-    }
-
-
-
-
-    $result = $con->query($query);
-
-
-    $data = [];
-
-    if ($result->num_rows > 0) {
+        $data = [];
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;
-            $response["success"] = true;
         }
-    } else {
-        $response["success"] = false;
-        $response["message"] = "Product not found";
+
+        if (count($data) > 0) {
+            $response["success"] = true;
+            $response["products"] = $data;
+        } else {
+            $response["message"] = "No products found";
+        }
+
+        $stmt->close();
+    } catch (Exception $e) {
+        $response["error"] = "An error occurred: " . $e->getMessage();
     }
-
-
-
-    $response['products'] = $data;
-    echo json_encode($response);
+} else {
+    $response["message"] = "Invalid request method";
 }
+
+echo json_encode($response);
