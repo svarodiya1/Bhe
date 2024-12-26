@@ -18,21 +18,30 @@ const ProductOverview = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(`Fetching product data for ID: ${id}`); // Debugging line
         const response = await $.getJSON(`${ApiURl}/getProducts.php?product=${id}`);
-        setProduct(response.products[0]);
+        console.log("Response Data:", response); // Debugging line
 
-        // Set sizes and prices for the product
-        const availableSizes = response.products[0].sizes || [];
-        const productPrices = response.products[0].prices || [];
+        if (response && response.products && response.products.length > 0) {
+          const productData = response.products[0];
+          setProduct(productData);
 
-        setSizes(availableSizes);
-        setPrices(productPrices);
+          // Parse sizes and prices
+          const sizes = productData.sizes ? productData.sizes.split(',') : [];
+          const prices = productData.prices ? productData.prices.split(',').map(Number) : [];
 
-        // Initialize quantities for each size
-        const initialQuantities = new Array(availableSizes.length).fill(1);
-        setQuantityPerSize(initialQuantities);
+          setSizes(sizes);
+          setPrices(prices);
+
+          // Initialize quantities for each size
+          const initialQuantities = new Array(sizes.length).fill(1);
+          setQuantityPerSize(initialQuantities);
+        } else {
+          setCartMessage("No product found.");
+        }
       } catch (error) {
         console.error("Error fetching product data:", error);
+        setCartMessage("Error fetching product data.");
       }
     };
 
@@ -60,8 +69,8 @@ const ProductOverview = () => {
       // Calculate the total price based on selected sizes and quantities
       const totalPrice = selectedSizes.reduce((acc, size, index) => {
         const sizeIndex = sizes.indexOf(size);
-        const sizePrice = prices[sizeIndex]; // Price for selected size
-        const quantity = quantityPerSize[index]; // Quantity for the size
+        const sizePrice = prices[sizeIndex] || 0; // Handling cases where size is not available
+        const quantity = quantityPerSize[index];
         return acc + sizePrice * quantity;
       }, 0);
 
