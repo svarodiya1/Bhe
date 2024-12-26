@@ -22,12 +22,17 @@ function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await $.getJSON(`${ApiURl}/getMainCategory.php`);
-        setCatData(response.data);
+        const response = await fetch(`${ApiURl}/getMainCategory.php`);
+        const data = await response.json();
+        if (data && data.data) {
+          setCatData(data.data);
+        } else {
+          console.error("Unexpected API response structure:", data);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
+    }
 
     fetchData();
 
