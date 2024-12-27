@@ -1,10 +1,11 @@
 import { useState } from "react";
+import $ from "jquery";
 import { useNavigate } from "react-router-dom";
 import ApiURl from "../controllers/Api";
-import $ from "jquery";
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true);
+
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ function Login() {
     setErrorMessage(""); // Clear error message when switching forms
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setErrorMessage(""); // Clear error message on submit
 
@@ -50,31 +51,40 @@ function Login() {
           confirm_password,
         };
 
-    try {
-      let response = await $.post(isLogin ? `${ApiURl}/login.php` : `${ApiURl}/signup.php`, data);
-      if (response.success) {
-        alert(response.message);
-        localStorage.setItem("token", response.token || "");
-        localStorage.setItem("cart_id", response.cart_id || "");
-        localStorage.setItem("user_id", response.session?.user_id || "");
+    // Use POST request instead of GET for sensitive data
+    $.post(
+      isLogin
+        ? `${ApiURl}/login.php`
+        : `${ApiURl}/signup.php`,
+      data,
+      function (response) {
+        if (response.success) {
+          setErrorMessage(""); // Clear error message on success
+          alert(response.message);
+          console.log(response);
+          console.log(username);
+          console.log(response);
 
-        // Navigate to the correct page
-        if (response.redirect) {
-          navigate(response.redirect);
+
+
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('cart_id', response.cart_id);
+          
+          localStorage.setItem('user_id', response.session["user_id"]);
+
+          isLogin ? navigate("/dashboard") : navigate("/login");
         } else {
-          navigate("/dashboard");  // Default to dashboard if no redirect is provided
+          setErrorMessage(response.message); // Show error message from server
         }
-      } else {
-        setErrorMessage(response.message);
       }
-    } catch (error) {
-      setErrorMessage("Error: " + error.responseText);
-    }
+    ).fail((error) => {
+      setErrorMessage("Error: " + error.responseText); // Show error if request fails
+    });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-100 via-purple-400 to-purple-300">
-      <div className="bg-gradient-to-r from-purple-100 via-purple-200 to-purple-300 px- p-8 rounded-lg shadow-md max-w-lg w-full">
+    <div className="min-h-screen flex items-center justify-center  bg-gradient-to-r from-purple-100 via-purple-400 to-purple-300 ">
+      <div className=" bg-gradient-to-r from-purple-100 via-purple-200 to-purple-300 px- p-8 rounded-lg shadow-md max-w-lg w-full">
         <h2 className="text-2xl font-bold text-center mb-6">
           {isLogin ? "Login" : "Signup"}
         </h2>
@@ -210,7 +220,7 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none"
+            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none "
           >
             {isLogin ? "Login" : "Signup"}
           </button>
@@ -233,4 +243,3 @@ function Login() {
 }
 
 export default Login;
-
