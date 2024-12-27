@@ -18,21 +18,21 @@ const ProductOverview = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log(`Fetching product data for ID: ${id}`); // Debugging line
+        console.log(`Fetching product data for ID: ${id}`); 
         const response = await $.getJSON(`${ApiURl}/getProducts.php?product=${id}`);
-        console.log("Response Data:", response); // Debugging line
-
+        console.log("Response Data:", response); 
+  
         if (response && response.products && response.products.length > 0) {
           const productData = response.products[0];
           setProduct(productData);
-
+  
           // Parse sizes and prices
           const sizes = productData.sizes ? productData.sizes.split(',') : [];
           const prices = productData.prices ? productData.prices.split(',').map(Number) : [];
-
+  
           setSizes(sizes);
           setPrices(prices);
-
+  
           // Initialize quantities for each size
           const initialQuantities = new Array(sizes.length).fill(1);
           setQuantityPerSize(initialQuantities);
@@ -44,9 +44,10 @@ const ProductOverview = () => {
         setCartMessage("Error fetching product data.");
       }
     };
-
+  
     fetchData();
   }, [id]);
+  
 
   // Handle size selection
   const handleSizeChange = (e) => {
@@ -63,25 +64,46 @@ const ProductOverview = () => {
     setQuantityPerSize(updatedQuantities);
   };
 
-  // Handle Add to Cart click
   const handleAddToCart = async () => {
     try {
-      // Calculate the total price based on selected sizes and quantities
-      const totalPrice = selectedSizes.reduce((acc, size, index) => {
+      if (!selectedSizes || selectedSizes.length === 0) {
+        setCartMessage("Please select at least one size.");
+        return;
+      }
+  
+      // Extract quantities for selected sizes
+      const quantitiesToSend = selectedSizes.map((size) => {
+        const sizeIndex = sizes.indexOf(size); // Find the index of the selected size
+        return quantityPerSize[sizeIndex] || 1; // Ensure a quantity is available
+      });
+  
+      // Calculate total price
+      const total_price = selectedSizes.reduce((acc, size, index) => {
         const sizeIndex = sizes.indexOf(size);
-        const sizePrice = prices[sizeIndex] || 0; // Handling cases where size is not available
-        const quantity = quantityPerSize[index];
+        const sizePrice = prices[sizeIndex] || 0;
+        const quantity = quantitiesToSend[index];
         return acc + sizePrice * quantity;
       }, 0);
-
-      // Make the POST request to add product to cart
-      const response = await $.post(`${ApiURl}/addToCart.php`, {
-        product_id: product.product_id, // Product ID from product details
-        cart_id: cartId, // Cart ID from localStorage or session
-        selected_sizes: selectedSizes, // Selected sizes array
-        total_price: totalPrice // Total price calculated
+  
+      console.log("Adding to cart with data:", {
+        product_id: product.product_id,
+        cart_id: cartId,
+        selectedSizes,
+        quantities: quantitiesToSend,
+        total_price,
       });
-
+  
+      // Send data to the server
+      const response = await $.post(`${ApiURl}/addToCart.php`, {
+        product_id: product.product_id,
+        cart_id: cartId,
+        sizes: JSON.stringify(selectedSizes), // Send sizes as an array
+        quantities: JSON.stringify(quantitiesToSend), // Send quantities as an array
+        total_price,
+      });
+  
+      console.log("Response from addToCart:", response);
+  
       if (response.status === "success") {
         setCartMessage("Product added to cart successfully!");
       } else {
@@ -92,7 +114,9 @@ const ProductOverview = () => {
       setCartMessage("Error adding product to cart.");
     }
   };
+  
 
+  
   return (
     <div className="max-w-8xl mx-auto md:p-8 p-2 bg-gray-100 shadow-lg rounded-lg">
       <h1>{id}</h1>
@@ -144,11 +168,12 @@ const ProductOverview = () => {
             {/* Quantity */}
             <div>
               <h3 className="text-gray-700 font-semibold">Quantity:</h3>
-              {selectedSizes.map((size, index) => (
+              {sizes.map((size, index) => (
                 <div key={index} className="flex items-center mb-2">
-                  <label htmlFor={`quantity-${index}`} className="text-gray-600 ml-2">
+                  <label htmlFor={`quantity-${index}`} className="text-gray-600 ml-2 ">
                     {size}
                   </label>
+                  <div className="px-[100px]">
                   <input
                     type="number"
                     id={`quantity-${index}`}
@@ -157,6 +182,7 @@ const ProductOverview = () => {
                     onChange={(e) => handleQuantityChange(index, e.target.value)}
                     className="w-20 ml-2 border rounded-md focus:outline-none"
                   />
+                   </div>
                 </div>
               ))}
             </div>
@@ -184,6 +210,6 @@ const ProductOverview = () => {
       </div>
     </div>
   );
-};
+};  
 
 export default ProductOverview;

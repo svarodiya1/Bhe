@@ -1,6 +1,6 @@
 <?php
 
-
+include "./db.php";
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -8,7 +8,6 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS, GET"); // Include GET if you're making a GET request
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-include "./db.php";
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -19,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         $id = $_GET['id'];
 
-        $query = "SELECT * FROM main_category where id = $id;";
+        $query = "SELECT * FROM ecommerce_model.main_category where id = $id;";
 
     } else {
 
@@ -27,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
 
-    $query = "SELECT * FROM main_category;";
+    $query = "SELECT * FROM ecommerce_model.main_category;;";
     }
     $result = $con->query($query);
 

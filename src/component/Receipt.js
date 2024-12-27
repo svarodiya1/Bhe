@@ -13,7 +13,7 @@ const Receipt = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 my-10 mx-10 border-t">
+    <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 my-10  border-t">
       <h1 className="w-28 mx-auto border"><img src={Logo} alt="My Image" /></h1>
       <p className="text-center text-gray-600">Thank you for your purchase!</p>
       
@@ -59,7 +59,7 @@ const Receipt = () => {
         </div>
       </div>
 
-      <div className="mt-6 text-center mt-3">
+      <div className="mt-6 text-center ">
         <p className="text-gray-600">We hope to see you again!</p>
         <p className="text-sm text-gray-500">For any inquiries, contact us at care@bhatiaemporium.com
 

@@ -110,8 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Prepare the SQL statement to prevent SQL injection
-        // $sql = "INSERT INTO `categories` (`category_name`) VALUES (?)";
-        $sql = "INSERT INTO `main_category` (`category_name`, `sample_image`) VALUES (?, ?);";
+        // $sql = "INSERT INTO `ecommerce_model`.`categories` (`category_name`) VALUES (?)";
+        $sql = "INSERT INTO `ecommerce_model`.`main_category` (`category_name`, `sample_image`) VALUES (?, ?);";
 
         if ($stmt = $conn->prepare($sql)) {
             // Bind the parameters
