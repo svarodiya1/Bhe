@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $row = $result->fetch_assoc();
 
             // Verify the password using password_verify
-            if ($password=== $row['password']) {
+            if (password_verify($password, $row['password'])) {
                 // Regenerate session ID to prevent session fixation attacks
                 session_regenerate_id(true);
 
@@ -88,7 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['message'] = "Successfully Logged In";
                 $response['token'] = $jwt; // Include token in response
                 $response['cart_id'] = $cart_id; // Include token in response
+                $response['user_id'] = $row['user_id']; // Ensure user_id is included
+                $response['username'] = $row['username']; // Include other necessary user data if required
                 $response['session'] = $_SESSION;
+
             } else {
                 // Invalid password
                 $response['success'] = false;
@@ -112,3 +115,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 echo json_encode($response);
+
+?>
