@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useTable } from 'react-table';
-import { IoEyeOutline } from "react-icons/io5";
-import { FiEdit } from "react-icons/fi";
 import { RiDeleteBinLine } from "react-icons/ri";
 import $ from 'jquery';
 import ApiURl from '../../controllers/Api';
@@ -10,11 +8,8 @@ const ProductList = () => {
     const [productList, setProductList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [formData, setFormData] = useState({ name: '', category_id: '', stock_quantity: '', price: '' });
 
+    // Fetch products on component mount
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -36,40 +31,7 @@ const ProductList = () => {
         fetchProducts();
     }, []);
 
-    const data = React.useMemo(() => productList, [productList]);
-
-    const columns = React.useMemo(
-        () => [
-            { Header: 'Product name', accessor: 'name' },
-            { Header: 'Product Id', accessor: 'product_id' },
-            { Header: 'Category ID', accessor: 'category_id' },
-            { Header: 'Created date', accessor: 'created_at' },
-            {
-                Header: 'Action',
-                accessor: 'action',
-                Cell: ({ row }) => (
-                    <div>
-                       
-                       
-                        <button
-                            type="button"
-                            className="text-red-700 bg-transparent text-xl rounded-lg px-2"
-                            onClick={() => handleDelete(row.original.product_id)}
-                        >
-                            <RiDeleteBinLine />
-                        </button>
-                    </div>
-                ),
-            },
-        ],
-        []
-    );
-
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-        columns,
-        data
-    });
-
+    // Handle product deletion
     const handleDelete = async (productId) => {
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
@@ -92,64 +54,97 @@ const ProductList = () => {
         }
     };
 
-    const handleEdit = (productId) => {
-        const product = productList.find(item => item.product_id === productId);
-        console.log(product);  // Check if the product is selected correctly
-        setSelectedProduct(product);
-        setFormData({
-            name: product.name,
-            category_id: product.category_id,
-            stock_quantity: product.stock_quantity,
-            price: product.price,
-        });
-        setIsEditMode(true);
-        setIsModalOpen(true);
-    };
-
-    const handleView = (productId) => {
-        const product = productList.find(item => item.product_id === productId);
-        console.log(product);  // Check if the product is selected correctly
-        setSelectedProduct(product);
-        setIsEditMode(false); // View mode
-        setIsModalOpen(true);
-    };
-
-    const handleFormSubmit = async (event) => {
-        event.preventDefault();
-        console.log(formData);  // Log form data for debugging
+    // Handle availability toggle
+    const handleAvailabilityToggle = async (productId, size, available) => {
         try {
             const response = await fetch(`${ApiURl}/updateProduct.php`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, product_id: selectedProduct.product_id }),
+                headers: { 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({
+                    product_id: productId,  // The ID of the product
+                    size: size,             // The size of the product
+                    available: available    // The availability status (0 or 1)
+                }),
             });
+
+            // Check if the response is successful
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
             const result = await response.json();
+
             if (result.success) {
-                setProductList(prevProducts => prevProducts.map(product =>
-                    product.product_id === selectedProduct.product_id ? { ...product, ...formData } : product
-                ));
+                setProductList(prevProducts =>
+                    prevProducts.map(product =>
+                        product.product_id === productId && product.size === size
+                            ? { ...product, is_available: result.data?.is_available ?? product.is_available }
+                            : product
+                    )
+                );
                 alert(result.message);
-                setIsModalOpen(false);
             } else {
-                alert(result.message || "Failed to update product.");
+                alert(result.message || "Failed to update availability.");
             }
         } catch (error) {
-            console.error("Error updating product:", error);
-            alert("An error occurred while updating the product.");
+            console.error('Error toggling availability:', error);
+            alert("An error occurred while updating the product availability.");
         }
     };
 
-    const handleModalClose = () => {
-        setIsModalOpen(false);
-    };
+    // Table columns definition
+    const columns = React.useMemo(
+        () => [
+            { Header: 'Product Name', accessor: 'name' },
+            { Header: 'Size', accessor: 'size' }, // Assuming `size` exists in the product data
+            { 
+                Header: 'Item Available', 
+                accessor: 'is_available', 
+                Cell: ({ row }) => (
+                    <div>
+                        <input 
+                            type="checkbox" 
+                            checked={row.original.is_available === 1}
+                            onChange={() => handleAvailabilityToggle(
+                                row.original.product_id, 
+                                row.original.size,  // Pass size here
+                                row.original.is_available === 1 ? 0 : 1  // Toggle availability
+                            )}
+                        /> Available
+                    </div>
+                ),
+            },
+            { Header: 'Category ID', accessor: 'category_id' },
+            { Header: 'Created date', accessor: 'created_at' },
+            { 
+                Header: 'Action', 
+                accessor: 'action', 
+                Cell: ({ row }) => (
+                    <div>
+                        <button 
+                            type="button" 
+                            className="text-red-700 bg-transparent text-xl rounded-lg px-2" 
+                            onClick={() => handleDelete(row.original.product_id)}
+                        >
+                            <RiDeleteBinLine />
+                        </button>
+                    </div>
+                ),
+            },
+        ],
+        []
+    );
 
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevData) => ({ ...prevData, [name]: value }));
-    };
+    // React Table hook
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
+        columns,
+        data: productList
+    });
 
     if (loading) {
-        return <p>Loading....</p>;
+        return <p>Loading...</p>;
     }
 
     if (error) {
@@ -195,8 +190,6 @@ const ProductList = () => {
                     </tbody>
                 </table>
             </div>
-
-          
         </div>
     );
 };

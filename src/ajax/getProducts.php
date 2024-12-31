@@ -30,13 +30,24 @@
             } elseif ($product) {
                 // Query for fetching a specific product
                 $query = "
-                    SELECT DISTINCT a.*, b.category_name, GROUP_CONCAT(d.price ORDER BY d.size ASC) as prices, GROUP_CONCAT(d.size ORDER BY d.size ASC) as sizes
-FROM products a
-LEFT JOIN categories b ON a.category_id = b.category_id  
-LEFT JOIN main_category c ON b.parent_id = c.id
-LEFT JOIN product_price d ON a.product_id = d.product_id
-WHERE a.product_id = ?
-GROUP BY a.product_id
+                   SELECT DISTINCT 
+    a.*, 
+    b.category_name, 
+    GROUP_CONCAT(d.price ORDER BY d.size ASC) AS prices, 
+    GROUP_CONCAT(d.size ORDER BY d.size ASC) AS sizes,
+    GROUP_CONCAT(d.is_available) AS availability  
+FROM 
+    products a
+LEFT JOIN 
+    categories b ON a.category_id = b.category_id  
+LEFT JOIN 
+    main_category c ON b.parent_id = c.id
+LEFT JOIN 
+    product_price d ON a.product_id = d.product_id
+WHERE 
+    a.product_id = ?
+GROUP BY 
+    a.product_id;
                 ";
 
                 $stmt = $con->prepare($query);
@@ -44,7 +55,7 @@ GROUP BY a.product_id
             } else {
                 // Default query to fetch all products
                 $query = "
-                    SELECT DISTINCT a.*, b.category_name, d.price, d.size
+                       SELECT DISTINCT a.*, b.category_name, d.price, d.size, d.is_available
                     FROM products a
                     LEFT JOIN categories b ON a.category_id = b.category_id  
                     LEFT JOIN main_category c ON b.parent_id = c.id

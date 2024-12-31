@@ -82,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $row['user_id'];
                 $_SESSION['username'] = $row['username'];
                 $_SESSION['email'] = $row['email'];
+                $_SESSION['cart_id'] = $cart_id;
 
                 // Success response
                 $response['success'] = true;

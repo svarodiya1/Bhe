@@ -102,9 +102,7 @@ const fetchSearchResults = async (query) => {
                   Cart
                 </span>
               </div>
-              {/*
               <LogoutButton/>
-              */}
             </div>
             {/* <!-- Mobile Hamburger Icon --> */}
             <button

@@ -313,6 +313,24 @@ function AddProduct() {
                   />
                 </div>
 
+                <div>
+            <label
+              htmlFor="numericDescription"
+              className="block mb-2 text-sm font-medium text-gray-900"
+            >
+              Stock Quantity
+            </label>
+            <input
+              type="number"
+              id="numericDescription"
+              value={stockQuantity}
+              onChange={(e) => setStockQuantity(e.target.value)}
+              className="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+              placeholder="Enter a number"
+              required
+            />
+          </div>
+
                 <div className="sm:col-span-2">
                   <label
                     htmlFor="description"

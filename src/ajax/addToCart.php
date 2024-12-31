@@ -12,18 +12,15 @@ include 'db.php';
 $conn = $con;
 
 // Validate POST data
-if (!isset($_POST['product_id'])) {
-    echo json_encode(["status" => "error", "message" => "Missing 'product_id' parameter."]);
-    exit();
-}
-if (!isset($_POST['cart_id'])) {
-    echo json_encode(["status" => "error", "message" => "Missing 'cart_id' parameter."]);
+if (!isset($_POST['product_id']) || !isset($_POST['cart_id'])) {
+    echo json_encode(["status" => "error", "message" => "Missing required parameters."]);
     exit();
 }
 
 // Retrieve and sanitize inputs
+$user_id = intval($_POST['user_id']);
 $product_id = intval($_POST['product_id']);
-$cart_id = intval($_POST['cart_id']);
+// $cart_id = intval($_POST['cart_id']);
 $sizes = isset($_POST['sizes']) ? json_decode($_POST['sizes'], true) : [];
 $quantities = isset($_POST['quantities']) ? json_decode($_POST['quantities'], true) : [];
 $total = isset($_POST['total']) ? floatval($_POST['total']) : 0;
@@ -34,6 +31,23 @@ if (empty($sizes) || empty($quantities) || count($sizes) !== count($quantities))
 }
 
 try {
+
+    $cart_query = "SELECT cart_id FROM shopping_cart WHERE user_id = ?";
+    $cart_stmt = $conn->prepare($cart_query);
+    $cart_stmt->bind_param("i", $user_id);
+    $cart_stmt->execute();
+    $cart_result = $cart_stmt->get_result();
+    
+    if ($cart_result->num_rows > 0) {
+        // If an active cart exists
+        $cart_row = $cart_result->fetch_assoc();
+        $cart_id = $cart_row['cart_id'];
+    } else {
+        $response['sucess'] = false;
+        $response['message'] = 'Cart Id is Missing';
+        exit();
+    }
+
     // Retrieve product price
     $price_query = "SELECT price FROM product_price WHERE product_id = ?";
     $price_stmt = $conn->prepare($price_query);
@@ -46,25 +60,32 @@ try {
         $price = floatval($price_row['price']);
 
         foreach ($sizes as $index => $size) {
+            // Trim and sanitize size
+            $size = trim($size);
             $qty = intval($quantities[$index]);
+
             if ($qty <= 0) {
                 echo json_encode(["status" => "error", "message" => "Invalid quantity for size $size."]);
                 exit();
             }
+
             $item_total = $price * $qty;
 
+
+            $status = "OPEN";
+
             // Check if the item exists in the cart
-            $check_query = "SELECT product_id FROM cart_items WHERE cart_id = ? AND product_id = ? AND size = ?";
+            $check_query = "SELECT product_id FROM cart_items WHERE cart_id = ? AND product_id = ? AND size = ? AND status = ?";
             $check_stmt = $conn->prepare($check_query);
-            $check_stmt->bind_param("iis", $cart_id, $product_id, $size);
+            $check_stmt->bind_param("iiss", $cart_id, $product_id, $size, $status);
             $check_stmt->execute();
             $check_result = $check_stmt->get_result();
 
             if ($check_result->num_rows > 0) {
                 // Update existing cart item
-                $update_query = "UPDATE cart_items SET quantity = quantity + ?, total = total + ? WHERE cart_id = ? AND product_id = ? AND size = ?";
+                $update_query = "UPDATE cart_items SET quantity = quantity + ?, total = total + ? WHERE cart_id = ? AND product_id = ? AND size = ? AND status = ?";
                 $update_stmt = $conn->prepare($update_query);
-                $update_stmt->bind_param("idiii", $qty, $item_total, $cart_id, $product_id, $size);
+                $update_stmt->bind_param("idisss", $qty, $item_total, $cart_id, $product_id, $size, $status);
                 $update_stmt->execute();
             } else {
                 // Insert new cart item

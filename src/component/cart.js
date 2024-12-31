@@ -9,7 +9,6 @@ function Cart() {
   const [totalAmount, setTotalAmount] = useState(0);
   const [gst, setGST] = useState(0);
 
-  // Add to Wishlist
   const addToWishlist = async (productId) => {
     const userId = localStorage.getItem("user_id");
     try {
@@ -26,7 +25,6 @@ function Cart() {
     }
   };
 
-  // Remove Item from Cart
   const removeCartItem = async (cartItemId) => {
     try {
       const response = await fetch(`${ApiURl}/removeCartItem.php`, {
@@ -45,12 +43,14 @@ function Cart() {
     }
   };
 
-  // Fetch Cart Items and Calculate GST
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
         const response = await fetch(`${ApiURl}/getCartItems.php?cart_id=${cartId}`);
         const data = await response.json();
+
+        console.log(response)
+        console.log(data)
         if (data?.data) {
           setCart(data.data);
           const total = data.data.reduce(
@@ -69,110 +69,88 @@ function Cart() {
 
   return (
     <section className="bg-white py-8 antialiased md:py-16">
-      <div className="mx-auto max-w-8xl px-4 2xl:px-0">
-        <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-          Shopping Cart
-        </h2>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl mb-4">Shopping Cart</h2>
 
-        <div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
-          {/* Cart Items Section */}
-          <div className="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
-            <div className="space-y-6">
-              {cart.map((product) => (
-                <div
-                  key={product.cart_item_id}
-                  className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:p-6"
-                >
-                  <div className="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
-                    <Link to={`/ProductOverview/${product.product_id}`} className="shrink-0 md:order-1">
-                      <img
-                        className="md:h-24 md:w-24 w-full h-60"
-                        src={`${imgLocation}/${product.img_path}`}
-                        alt={product.name}
-                      />
-                    </Link>
-
-                    <div className="flex items-center justify-between md:order-3 md:justify-end">
-                      <span className="text-xs bg-gray-50 h-9 flex items-center w-12 justify-center">
-                        Qty:
-                      </span>
-                      <input
-                        value={product.quantity}
-                        type="text"
-                        className="w-14 shrink-0 border-0 bg-gray-50 text-center text-sm font-medium text-gray-900 focus:outline-none"
-                        readOnly
-                      />
-                      <div className="text-end md:order-4 md:w-32">
-                        <p className="text-base font-bold text-gray-900">
-                          &#x20b9;{product.price * product.quantity}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
-                      <p className="text-base font-bold text-gray-900">{product.name}</p>
-                      <div className="flex items-center gap-4">
-                        <button
-                          type="button"
-                          className="inline-flex underline items-center text-xs text-gray-600 hover:underline"
-                          onClick={() => addToWishlist(product.product_id)}
-                        >
-                          Add to Wishlist
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex underline items-center text-xs text-red-600 hover:underline"
-                          onClick={() => removeCartItem(product.cart_item_id)}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
+          {/* Table Section */}
+          <div className="col-span-2">
+            <table className="w-full text-left border-collapse border border-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Product</th>
+                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Size</th>
+                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Quantity</th>
+                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cart.map((product) => (
+                  <tr key={product.cart_item_id}>
+                    <td className="border border-gray-200 px-4 py-2 text-sm">
+                      <Link to={`/ProductOverview/${product.product_id}`} className="flex items-center gap-4">
+                        <img
+                          className="h-16 w-16 rounded object-cover"
+                          src={`${imgLocation}/${product.img_path}`}
+                          alt={product.name}
+                        />
+                        <div>
+                          <p className="font-medium text-gray-900">{product.name}</p>
+                          <div className="flex gap-2 text-xs text-gray-500">
+                            <button
+                              onClick={() => addToWishlist(product.product_id)}
+                              className="text-blue-500 hover:underline"
+                            >
+                              Add to Wishlist
+                            </button>
+                            <span>|</span>
+                            <button
+                              onClick={() => removeCartItem(product.cart_item_id)}
+                              className="text-red-500 hover:underline"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2 text-sm">{product.size || "N/A"}</td>
+                    <td className="border border-gray-200 px-4 py-2 text-sm">{product.quantity}</td>
+                    <td className="border border-gray-200 px-4 py-2 text-sm">
+                      &#x20b9;{(product.price * product.quantity).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {/* Price Details Section */}
-          <div className="mx-auto mt-6 max-w-4xl flex-1 space-y-6 lg:mt-0 lg:w-full">
-            <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-              <p className="text-base border-b pb-2 border-gray-200 font-semibold text-gray-900">
-                Price Details
-              </p>
-
-              <div className="space-y-4">
-                <dl className="flex items-center justify-between gap-4">
-                  <dt className="text-sm font-normal text-gray-500">Total MRP</dt>
-                  <dd className="text-sm font-medium text-gray-900">&#x20b9;{totalAmount}</dd>
+          {/* Price Details */}
+          <div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <p className="text-base font-semibold border-b pb-2 border-gray-200 text-gray-900">Price Details</p>
+              <div className="mt-4 space-y-4">
+                <dl className="flex items-center justify-between">
+                  <dt className="text-sm text-gray-500">Total MRP</dt>
+                  <dd className="text-sm text-gray-900">&#x20b9;{totalAmount}</dd>
                 </dl>
-                <dl className="flex items-center justify-between gap-4">
-                  <dt className="text-sm font-normal text-gray-500">GST (18%)</dt>
-                  <dd className="text-sm font-medium text-gray-900">&#x20b9;{gst.toFixed(2)}</dd>
+                <dl className="flex items-center justify-between">
+                  <dt className="text-sm text-gray-500">GST (18%)</dt>
+                  <dd className="text-sm text-gray-900">&#x20b9;{gst.toFixed(2)}</dd>
                 </dl>
-                <dl className="flex items-center justify-between gap-4">
+                <dl className="flex items-center justify-between">
                   <dt className="text-sm font-bold text-gray-900">Total Amount</dt>
                   <dd className="text-sm font-bold text-gray-900">
                     &#x20b9;{(totalAmount + gst).toFixed(2)}
                   </dd>
                 </dl>
               </div>
-
               <Link
-                to={"/cart/checkout"}
-                className="flex w-full items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                to="/cart/checkout"
+                className="mt-6 block w-full text-center bg-blue-600 text-white font-medium py-2.5 rounded hover:bg-blue-700"
               >
                 Proceed to Checkout
               </Link>
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-sm font-normal text-gray-500">or</span>
-                <Link
-                  to={"/"}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-blue-700 underline"
-                >
-                  Continue Shopping
-                </Link>
-              </div>
             </div>
           </div>
         </div>

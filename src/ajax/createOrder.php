@@ -13,7 +13,7 @@ if ($con->connect_error) {
     exit();
 }
 
-// Decode the incoming JSON data
+// Decode JSON data from the client
 $input_data = json_decode(file_get_contents('php://input'), true);
 
 if (!$input_data) {
@@ -21,8 +21,8 @@ if (!$input_data) {
     exit();
 }
 
-// Extract address and order details
-$user_id = $input_data['user_id'] ?? null; // Assuming you will provide `user_id`
+// Extract data from the input
+$user_id = $input_data['user_id'] ?? null; 
 $first_name = $input_data['firstName'] ?? '';
 $last_name = $input_data['lastName'] ?? '';
 $phone = $input_data['phone'] ?? '';
@@ -33,121 +33,74 @@ $landmark = $input_data['landmark'] ?? '';
 $locality = $input_data['locality'] ?? '';
 $city = $input_data['city'] ?? '';
 $state = $input_data['state'] ?? '';
-$total_amount = $input_data['totalAmount'] ?? 0.0;
-$items = $input_data['items'] ?? [];
+$total_amount = $input_data['total_amount'] ?? 0.0;
+$items = $input_data['items'] ?? []; // Extract items from input
+$order_date = date('Y-m-d H:i:s');
+$created_at = date('Y-m-d H:i:s');
 
-// Validate required fields
-if (!$user_id || !$first_name || !$last_name || !$phone || !$email || !$address_line1 || !$locality || !$city || !$state) {
-    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
-    exit();
-}
-
-// Initialize the statement variable
 $stmt = null;
-
 try {
-    // Start transaction
-    if (!$con->query("START TRANSACTION")) {
-        throw new Exception("Failed to start transaction: " . $con->error);
-    }
+    $con->query("START TRANSACTION");
 
-    // Insert data into `customer_address` table
+    // Insert into customer_address
     $stmt = $con->prepare("
         INSERT INTO customer_address
-        (user_id, first_name, last_name, phone, email, address_line1, address_line2, landmark, locality, city, state, total_amount, created_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        (user_id, phone_number, email, address_line1, address_line2, landmark, locality_town, city, state, total_amount, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
-    
-    if (!$stmt) {
-        throw new Exception("Prepared statement failed: " . $con->error);
-    }
+    if (!$stmt) throw new Exception("customer_address query failed: " . $con->error);
 
-    // Bind parameters
-    $stmt->bind_param(
-        "issssssssssd",
-        $user_id,
-        $first_name,
-        $last_name,
-        $phone,
-        $email,
-        $address_line1,
-        $address_line2,
-        $landmark,
-        $locality,
-        $city,
-        $state,
-        $total_amount
-    );
+    $stmt->bind_param("issssssssds", $user_id, $phone, $email, $address_line1, $address_line2, $landmark, $locality, $city, $state, $total_amount, $created_at);
+    if (!$stmt->execute()) throw new Exception("Insert customer_address failed: " . $stmt->error);
 
-    // Execute the statement
-    if (!$stmt->execute()) {
-        throw new Exception("Error inserting into customer_address table: " . $stmt->error);
-    }
-
-    // Fetch the inserted address ID
     $address_id = $stmt->insert_id;
 
-    // Insert data into `orders` table
+    // Insert into orders
     $stmt = $con->prepare("
-        INSERT INTO orders (user_id,  total_amount, created_at) 
-        VALUES (?, ?, NOW())
+        INSERT INTO orders (user_id, order_date, status, shipping_address, total_amount, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
-    
-    if (!$stmt) {
-        throw new Exception("Prepared statement failed: " . $con->error);
-    }
+    if (!$stmt) throw new Exception("orders query failed: " . $con->error);
 
-    $stmt->bind_param("iid", $user_id, $address_id, $total_amount);
+    $status = 'Pending';
+    $stmt->bind_param("issids", $user_id, $order_date, $status, $address_id, $total_amount, $created_at);
+    if (!$stmt->execute()) throw new Exception("Insert orders failed: " . $stmt->error);
 
-    if (!$stmt->execute()) {
-        throw new Exception("Error inserting into orders table: " . $stmt->error);
-    }
-
-    // Fetch the inserted order ID
     $order_id = $stmt->insert_id;
 
-    // Insert data into `order_items` table
+    // Insert into order_items
     $itemStmt = $con->prepare("
         INSERT INTO order_items (order_id, product_id, quantity, price) 
         VALUES (?, ?, ?, ?)
     ");
-    
-    if (!$itemStmt) {
-        throw new Exception("Prepared statement failed: " . $con->error);
-    }
+    if (!$itemStmt) throw new Exception("order_items query failed: " . $con->error);
 
     foreach ($items as $item) {
-        $product_id = $item['product_id'];
-        $quantity = $item['quantity'];
-        $price = $item['price'];
-
-        $itemStmt->bind_param("iiid", $order_id, $product_id, $quantity, $price);
-
-        if (!$itemStmt->execute()) {
-            throw new Exception("Error inserting into order_items table: " . $itemStmt->error);
+        if (!isset($item['product_id'], $item['quantity'], $item['price'])) {
+            throw new Exception("Invalid item data: " . json_encode($item));
         }
+
+        $product_id = (int)$item['product_id'];
+        $quantity = (int)$item['quantity'];
+        $price = (float)$item['price'];
+ 
+        $itemStmt->bind_param("iiid", $order_id, $product_id, $quantity, $price);
+        if (!$itemStmt->execute()) throw new Exception("Insert order_items failed: " . $itemStmt->error);
     }
 
-    // Commit transaction
-    if (!$con->query("COMMIT")) {
-        throw new Exception("Failed to commit transaction: " . $con->error);
-    }
-
-    // Return success response
+    $con->query("COMMIT");
     echo json_encode(['success' => true, 'message' => 'Order created successfully', 'order_id' => $order_id]);
 } catch (Exception $e) {
-    // Rollback transaction in case of error
+    logError("Error: " . $e->getMessage());
     $con->query("ROLLBACK");
-
-    // Log error details for debugging
-    file_put_contents("error.log", "Error: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
-
-    // Return failure response
-    echo json_encode(['success' => false, 'message' => 'Failed to create order', 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Order creation failed', 'error' => $e->getMessage()]);
 } finally {
-    // Close the statement if initialized
+    // Close the statement and connection
     if ($stmt) {
         $stmt->close();
+    }
+    if (isset($itemStmt) && $itemStmt) {
+        $itemStmt->close();
     }
     $con->close();
 }

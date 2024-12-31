@@ -41,7 +41,7 @@ function Sidebar() {
 
   return (
     <div
-      className="relative w-full h-[55vh] overflow-hidden"
+      className="relative w-full h-[70vh] overflow-hidden"
       style={{
         backgroundImage: `url(${backgrounde})`,
         backgroundPosition: "right center", // Focus on the right side of the image
@@ -50,7 +50,7 @@ function Sidebar() {
       }}
     >
       {/* Carousel Container */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-10 flex items-center justify-center px-5 md:px-20 lg:px-40">
+      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-20 flex items-center justify-center px-5 md:px-20 lg:px-40">
         <Carousel
           selectedItem={currentIndex}
           autoPlay

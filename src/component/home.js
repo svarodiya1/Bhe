@@ -32,8 +32,8 @@ function Home() {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }
-
+    };
+    
     fetchData();
 
     // Trigger animation on component mount

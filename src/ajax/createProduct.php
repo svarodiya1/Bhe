@@ -65,9 +65,10 @@ try {
     }
 
     // Insert product details into the products table
-    $stmt = $con->prepare("INSERT INTO products (name, description, brand, category_id, sub_category_id, img_path) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $con->prepare("INSERT INTO products (stock_quantity,name, description, brand, category_id, sub_category_id, img_path) VALUES (?, ?, ?, ?,?,?, ?)");
     $stmt->bind_param(
-        "sssiis",
+        "isssiis",
+        $stockQuantity,
         $productName,
         $description,
         $brand,

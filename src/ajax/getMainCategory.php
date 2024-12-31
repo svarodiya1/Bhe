@@ -1,6 +1,6 @@
 <?php
 
-
+include "./db.php";
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -8,7 +8,6 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS, GET"); // Include GET if you're making a GET request
 header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-include "./db.php";
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {

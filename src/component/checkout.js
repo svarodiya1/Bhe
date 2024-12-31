@@ -2,20 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CheckoutProductsView from "./checkoutProductsview";
 import ApiURl from "../controllers/Api";
-import $ from 'jquery';
+import $ from "jquery";
 function Checkout() {
-    const [address, setAddress] = useState({});
-    
-    
-    const [cart, setCart] = useState([]);
-    const [cartId, setCartid] = useState(localStorage.getItem("cart_id") || "");
+  const [address, setAddress] = useState({});
 
-    
-    const[totalamount,setTotalAmount] = useState();
+  const [cart, setCart] = useState([]);
+  const [cartId, setCartid] = useState(localStorage.getItem("cart_id") || "");
 
+  const [totalamount, setTotalAmount] = useState();
 
-
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,7 +18,16 @@ function Checkout() {
           `${ApiURl}/getCartItems.php?cart_id=${cartId}`
         );
         setCart(response.data);
-        console.log(cart);
+
+        // Calculate the total amount
+        const total = response.data.reduce(
+          (sum, item) => sum + parseFloat(item.total || 0),
+          0
+        );
+        setTotalAmount(total);
+
+        console.log("Cart Items:", response.data);
+        console.log("Total Amount:", total);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -31,16 +35,17 @@ function Checkout() {
 
     fetchData();
   }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       const userId = localStorage.getItem("user_id");
-  
+
       if (!userId) {
         console.error("Error: User ID not found in local storage.");
         alert("Please log in to continue.");
         return;
       }
-  
+
       try {
         const response = await $.ajax({
           url: `${ApiURl}/getCartItems.php`,
@@ -49,7 +54,7 @@ function Checkout() {
           data: JSON.stringify({ user_id: userId, cart_id: cartId }),
           dataType: "json",
         });
-  
+
         if (response.success) {
           setCart(response.data);
           console.log(response.data);
@@ -61,29 +66,23 @@ function Checkout() {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
   }, [cartId]); // Added dependency array for cartId
-  
 
-
-
-
-
-
-
-
-  const data= [1,32,4]
+  const data = [1, 32, 4];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const orderData = {
       user_id: localStorage.getItem("user_id"), // Assuming you have user_id stored
       address: { ...address },
+
       items: cart.map((item) => ({
         product_id: item.product_id,
         quantity: item.quantity,
         price: item.price,
+        total: item.total,
       })),
     };
 
@@ -95,25 +94,19 @@ function Checkout() {
         data: JSON.stringify(orderData),
       });
 
+      console.log()
+
       if (response.order_id) {
         alert(`Order confirmed! Your order ID is ${response.order_id}`);
-        // Optionally clear cart
-        localStorage.removeItem("cart_id");
-        // Redirect or perform other actions
       } else {
         alert("Failed to confirm order. Please try again.");
-        console.log('error');
+        console.log("error");
       }
     } catch (error) {
       console.error("Error submitting order:", error);
       alert("An error occurred while processing your order.");
     }
   };
-
-
-
-
-  
 
   const handleData = (e) => {
     console.log(address);
@@ -328,10 +321,10 @@ function Checkout() {
 
                     <dl className="flex items-center justify-between gap-4 py-3">
                       <dt className="text-sm font-normal text-gray-500">
-                        Discount on MRP
+                        Payment method
                       </dt>
                       <dd className="text-sm font-medium text-green-500">
-                        0.00
+                        CASH
                       </dd>
                     </dl>
 

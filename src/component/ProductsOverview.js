@@ -1,41 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import $ from "jquery";
 import ApiURl from "../controllers/Api";
 import imgLocation from "../controllers/imagePath";
 
 const ProductOverview = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState({});
   const [cartMessage, setCartMessage] = useState(""); // Feedback message
-  const [cartId, setCartId] = useState(localStorage.getItem("cart_id")); // Feedback
+  const [cartId, setCartId] = useState(null); // Cart ID
   const [sizes, setSizes] = useState([]); // Array of sizes
   const [prices, setPrices] = useState([]); // Prices corresponding to sizes
-  const [quantityPerSize, setQuantityPerSize] = useState([]); // Dynamic quantity for each size
+  const [quantities, setQuantities] = useState([]); // Quantities per size
+  const [availability, setAvailability] = useState([]); // Availability for each size
   const [selectedSizes, setSelectedSizes] = useState([]); // Array of selected sizes
+
+  // fetch(`${ApiURl}get-cart-id.php`, {
+  //   method: "POST",
+  //   credentials: "same-origin",
+  // })
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     console.log("Received data:", data); // Check what data you are receiving
+  //     setCartId(data.cart_id);
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error fetching cart ID:", error);
+  //   });
+
+  // console.log(cartId);
 
   // Fetch product data from the API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log(`Fetching product data for ID: ${id}`); 
-        const response = await $.getJSON(`${ApiURl}/getProducts.php?product=${id}`);
-        console.log("Response Data:", response); 
-  
+        const response = await $.getJSON(
+          `${ApiURl}/getProducts.php?product=${id}`
+        );
+
         if (response && response.products && response.products.length > 0) {
           const productData = response.products[0];
           setProduct(productData);
-  
-          // Parse sizes and prices
-          const sizes = productData.sizes ? productData.sizes.split(',') : [];
-          const prices = productData.prices ? productData.prices.split(',').map(Number) : [];
-  
+
+          // Parse sizes, prices, and availability
+          const sizes = productData.sizes ? productData.sizes.split(",") : [];
+          const prices = productData.prices
+            ? productData.prices.split(",").map(Number)
+            : [];
+          const availability = productData.availability
+            ? productData.availability.split(",").map(Number)
+            : [];
+
           setSizes(sizes);
           setPrices(prices);
-  
-          // Initialize quantities for each size
+          setAvailability(availability);
+
+          // Initialize quantities for each size (default 1)
           const initialQuantities = new Array(sizes.length).fill(1);
-          setQuantityPerSize(initialQuantities);
+          setQuantities(initialQuantities);
         } else {
           setCartMessage("No product found.");
         }
@@ -44,24 +67,25 @@ const ProductOverview = () => {
         setCartMessage("Error fetching product data.");
       }
     };
-  
+
     fetchData();
   }, [id]);
-  
 
   // Handle size selection
   const handleSizeChange = (e) => {
     const { value, checked } = e.target;
     setSelectedSizes((prevState) =>
-      checked ? [...prevState, value] : prevState.filter((size) => size !== value)
+      checked
+        ? [...prevState, value]
+        : prevState.filter((size) => size !== value)
     );
   };
 
   // Handle quantity change for each size
   const handleQuantityChange = (index, value) => {
-    const updatedQuantities = [...quantityPerSize];
+    const updatedQuantities = [...quantities];
     updatedQuantities[index] = value;
-    setQuantityPerSize(updatedQuantities);
+    setQuantities(updatedQuantities);
   };
 
   const handleAddToCart = async () => {
@@ -70,13 +94,13 @@ const ProductOverview = () => {
         setCartMessage("Please select at least one size.");
         return;
       }
-  
+
       // Extract quantities for selected sizes
       const quantitiesToSend = selectedSizes.map((size) => {
         const sizeIndex = sizes.indexOf(size); // Find the index of the selected size
-        return quantityPerSize[sizeIndex] || 1; // Ensure a quantity is available
+        return quantities[sizeIndex] || 1; // Ensure a quantity is available
       });
-  
+
       // Calculate total price
       const total_price = selectedSizes.reduce((acc, size, index) => {
         const sizeIndex = sizes.indexOf(size);
@@ -84,29 +108,24 @@ const ProductOverview = () => {
         const quantity = quantitiesToSend[index];
         return acc + sizePrice * quantity;
       }, 0);
-  
-      console.log("Adding to cart with data:", {
-        product_id: product.product_id,
-        cart_id: cartId,
-        selectedSizes,
-        quantities: quantitiesToSend,
-        total_price,
-      });
-  
+
       // Send data to the server
       const response = await $.post(`${ApiURl}/addToCart.php`, {
+        user_id: localStorage.getItem("user_id"),
         product_id: product.product_id,
         cart_id: cartId,
         sizes: JSON.stringify(selectedSizes), // Send sizes as an array
         quantities: JSON.stringify(quantitiesToSend), // Send quantities as an array
         total_price,
       });
-  
-      console.log("Response from addToCart:", response);
-  
+
+      console.log(response);
       if (response.status === "success") {
+        alert(response.message);
         setCartMessage("Product added to cart successfully!");
+        navigate("/cart");
       } else {
+        alert(response.message);
         setCartMessage("Failed to add product to cart.");
       }
     } catch (error) {
@@ -114,42 +133,66 @@ const ProductOverview = () => {
       setCartMessage("Error adding product to cart.");
     }
   };
-  
 
-  
+  // Calculate the grand total
+  const calculateGrandTotal = () => {
+    return selectedSizes.reduce((acc, size) => {
+      const sizeIndex = sizes.indexOf(size);
+      const quantity = quantities[sizeIndex] || 1;
+      const price = prices[sizeIndex] || 0;
+      return acc + quantity * price;
+    }, 0);
+  };
+
   return (
-    <div className="max-w-8xl mx-auto md:p-8 p-2 bg-gray-100 shadow-lg rounded-lg">
+    <div className="max-w-7xl mx-auto md:p-8 p-4 bg-gray-100 shadow-lg rounded-lg">
       <h1>{id}</h1>
 
-      <div className="flex flex-col md:flex-row">
+      {/* Display Total Amount */}
+      <div className="flex justify-between items-center mb-6 bg-blue-600 text-white py-2 px-4 rounded-lg">
+        <span className="text-lg font-semibold">
+          Total Amount: ₹{calculateGrandTotal()}
+        </span>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
         {/* Product Image */}
-        <div className="md:w-1/3 p-4">
+        <div className="md:w-1/2 p-4">
           <img
-            className="w-full h-auto object-cover rounded-lg cursor-pointer"
+            className="w-full h-[400px] object-cover rounded-lg cursor-pointer"
             src={`${imgLocation}/${product.img_path}`}
             alt="Product"
           />
         </div>
 
         {/* Sizes, Prices, and Quantity */}
-        <div className="md:w-2/3 p-4">
+        <div className="md:w-1/2 p-4">
           <p className="text-gray-600 mb-1">{product.category_name}</p>
-          <h2 className="text-3xl font-semibold mb-4">{product.name}</h2>
+          <h2 className="text-3xl font-semibold mb-2">{product.name}</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-center">
             {/* Sizes */}
             <div>
               <h3 className="text-gray-700 font-semibold">Select Sizes:</h3>
               {sizes.map((size, index) => (
-                <div key={index} className="flex items-center mb-2">
+                <div key={index} className="flex items-center mb-1">
                   <input
                     type="checkbox"
                     id={`size-${index}`}
                     value={size}
                     onChange={handleSizeChange}
+                    disabled={availability[index] === 0} // Disable if unavailable
                   />
-                  <label htmlFor={`size-${index}`} className="text-gray-600 ml-2">
-                    {size}
+                  <label
+                    htmlFor={`size-${index}`}
+                    className={`text-gray-600 ml-2 ${
+                      availability[index] === 0 ? "text-red-500" : ""
+                    }`}
+                  >
+                    {size}{" "}
+                    {availability[index] === 0
+                      ? "(Unavailable)"
+                      : "(Available)"}
                   </label>
                 </div>
               ))}
@@ -159,7 +202,7 @@ const ProductOverview = () => {
             <div>
               <h3 className="text-gray-700 font-semibold">Prices:</h3>
               {prices.map((price, index) => (
-                <div key={index} className="flex items-center mb-2">
+                <div key={index} className="flex items-center mb-1">
                   <span className="text-gray-600">₹{price}</span>
                 </div>
               ))}
@@ -169,28 +212,46 @@ const ProductOverview = () => {
             <div>
               <h3 className="text-gray-700 font-semibold">Quantity:</h3>
               {sizes.map((size, index) => (
-                <div key={index} className="flex items-center mb-2">
-                  <label htmlFor={`quantity-${index}`} className="text-gray-600 ml-2 ">
-                    {size}
-                  </label>
-                  <div className="px-[100px]">
+                <div key={index} className="flex items-center mb-1">
                   <input
                     type="number"
                     id={`quantity-${index}`}
                     min="1"
-                    value={quantityPerSize[index] || 1}
-                    onChange={(e) => handleQuantityChange(index, e.target.value)}
-                    className="w-20 ml-2 border rounded-md focus:outline-none"
+                    value={quantities[index] || 1}
+                    onChange={(e) =>
+                      handleQuantityChange(index, e.target.value)
+                    }
+                    disabled={availability[index] === 0} // Disable if unavailable
+                    className="w-12 text-center border rounded-md focus:outline-none"
                   />
-                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Total */}
+            <div>
+              <h3 className="text-gray-700 font-semibold">Total:</h3>
+              {sizes.map((size, index) => (
+                <div key={index} className="flex items-center mb-1">
+                  <span className="text-gray-600">
+                    ₹{prices[index] * (quantities[index] || 1)}
+                  </span>
+                </div>
+              ))}
+              {/* Grand Total */}
+              <div className="flex items-center mt-2 border-t pt-2">
+                <span className="text-gray-800 font-semibold">
+                  Grand Total: ₹{calculateGrandTotal()}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Product Description */}
-          <div className="mt-5">
-            <h3 className="text-gray-700 font-semibold">Product Description:</h3>
+          <div className="mt-4">
+            <h3 className="text-gray-700 font-semibold">
+              Product Description:
+            </h3>
             <p className="text-gray-600 mt-2">{product.description}</p>
           </div>
 
@@ -210,6 +271,6 @@ const ProductOverview = () => {
       </div>
     </div>
   );
-};  
+};
 
 export default ProductOverview;
