@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CheckoutProductsView from "./checkoutProductsview";
 import ApiURl from "../controllers/Api";
-import $ from "jquery";
+import $ from 'jquery';
 function Checkout() {
   const [address, setAddress] = useState({});
+
 
   const [cart, setCart] = useState([]);
   const [cartId, setCartid] = useState(localStorage.getItem("cart_id") || "");
 
+
   const [totalamount, setTotalAmount] = useState();
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,10 +24,7 @@ function Checkout() {
         setCart(response.data);
 
         // Calculate the total amount
-        const total = response.data.reduce(
-          (sum, item) => sum + parseFloat(item.total || 0),
-          0
-        );
+        const total = response.data.reduce((sum, item) => sum + parseFloat(item.total || 0), 0);
         setTotalAmount(total);
 
         console.log("Cart Items:", response.data);
@@ -70,14 +71,13 @@ function Checkout() {
     fetchData();
   }, [cartId]); // Added dependency array for cartId
 
-  const data = [1, 32, 4];
+  // const data = [1, 32, 4]
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const orderData = {
       user_id: localStorage.getItem("user_id"), // Assuming you have user_id stored
       address: { ...address },
-
       items: cart.map((item) => ({
         product_id: item.product_id,
         quantity: item.quantity,
@@ -86,24 +86,40 @@ function Checkout() {
       })),
     };
 
+
+
+    console.log("you are data is ;")
+
+    console.log(address)
+
+
+    address["user_id"]=localStorage.getItem("user_id"); 
+
+
     try {
       const response = await $.ajax({
         url: `${ApiURl}/createOrder.php`, // Adjust to your endpoint
         type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(orderData),
+        dataType: "json",
+        data: JSON.stringify(address),
       });
 
-      console.log()
+      console.log(address)
 
+      
+      // console.log(JSON.stringify(orderData));
+      console.log(response);
       if (response.order_id) {
         alert(`Order confirmed! Your order ID is ${response.order_id}`);
+        // Optionally clear cart
+        localStorage.removeItem("cart_id");
+        // Redirect or perform other actions
       } else {
         alert("Failed to confirm order. Please try again.");
-        console.log("error");
+        console.log('error');
       }
     } catch (error) {
-      console.error("Error submitting order:", error);
+      console.error("Error submitting order:", error.responseText);
       alert("An error occurred while processing your order.");
     }
   };

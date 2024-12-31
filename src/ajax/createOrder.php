@@ -22,25 +22,32 @@ if (!$input_data) {
 }
 
 // Extract data from the input
-$user_id = $input_data['user_id'] ?? null; 
-$first_name = $input_data['firstName'] ?? '';
-$last_name = $input_data['lastName'] ?? '';
-$phone = $input_data['phone'] ?? '';
-$email = $input_data['email'] ?? '';
-$address_line1 = $input_data['addressLine1'] ?? '';
+$user_id = $input_data['user_id'] ?? 34; 
+// $first_name = $input_data['firstName'] ?? '';
+// $last_name = $input_data['lastName'] ?? '';
+$phone = $input_data['phone'];
+$email = $input_data['email'];
+$address_line1 = $input_data['addressLine1'];
 $address_line2 = $input_data['addressLine2'] ?? '';
 $landmark = $input_data['landmark'] ?? '';
 $locality = $input_data['locality'] ?? '';
 $city = $input_data['city'] ?? '';
 $state = $input_data['state'] ?? '';
 $total_amount = $input_data['total_amount'] ?? 0.0;
-$items = $input_data['items'] ?? []; // Extract items from input
 $order_date = date('Y-m-d H:i:s');
 $created_at = date('Y-m-d H:i:s');
+
+// Initialize items array
+$items = $input_data['items'] ?? [];
+
+//  echo $_POST ;
+
+// var_dump($input_data);
 
 $stmt = null;
 try {
     $con->query("START TRANSACTION");
+            
 
     // Insert into customer_address
     $stmt = $con->prepare("
@@ -64,7 +71,8 @@ try {
 
     $status = 'Pending';
     $stmt->bind_param("issids", $user_id, $order_date, $status, $address_id, $total_amount, $created_at);
-    if (!$stmt->execute()) throw new Exception("Insert orders failed: " . $stmt->error);
+    if (!$stmt->execute())
+     throw new Exception("Insert orders failed: " . $stmt->error);
 
     $order_id = $stmt->insert_id;
 
@@ -76,14 +84,10 @@ try {
     if (!$itemStmt) throw new Exception("order_items query failed: " . $con->error);
 
     foreach ($items as $item) {
-        if (!isset($item['product_id'], $item['quantity'], $item['price'])) {
-            throw new Exception("Invalid item data: " . json_encode($item));
-        }
-
         $product_id = (int)$item['product_id'];
         $quantity = (int)$item['quantity'];
         $price = (float)$item['price'];
- 
+
         $itemStmt->bind_param("iiid", $order_id, $product_id, $quantity, $price);
         if (!$itemStmt->execute()) throw new Exception("Insert order_items failed: " . $itemStmt->error);
     }
@@ -91,11 +95,11 @@ try {
     $con->query("COMMIT");
     echo json_encode(['success' => true, 'message' => 'Order created successfully', 'order_id' => $order_id]);
 } catch (Exception $e) {
-    logError("Error: " . $e->getMessage());
     $con->query("ROLLBACK");
     echo json_encode(['success' => false, 'message' => 'Order creation failed', 'error' => $e->getMessage()]);
-} finally {
-    // Close the statement and connection
+}
+
+finally {
     if ($stmt) {
         $stmt->close();
     }
@@ -104,4 +108,4 @@ try {
     }
     $con->close();
 }
-?>
+?>  
