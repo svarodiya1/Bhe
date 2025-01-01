@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         $id = $_GET['id'];
 
-        $query = "SELECT * FROM ecommerce_model.main_category where id = $id;";
+        $query = "SELECT * FROM main_category where id = $id;";
 
     } else {
 
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
 
-    $query = "SELECT * FROM ecommerce_model.main_category;;";
+    $query = "SELECT * FROM main_category;";
     }
     $result = $con->query($query);
 
