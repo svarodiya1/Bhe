@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { IoEyeOutline } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBinLine } from "react-icons/ri";
+import ApiURl from "../../controllers/Api";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -14,7 +15,7 @@ const UserList = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "http://localhost/ecommere_react_with_php-main/ajax/getUsers.php"
+          `${ApiURl}/getUsers.php`
         );
         const data = await response.json();
         setUsers(data);
@@ -33,7 +34,7 @@ const UserList = () => {
     if (window.confirm(`Are you sure you want to delete user "${user.username}"?`)) {
       try {
         const response = await fetch(
-          "http://localhost/ecommere_react_with_php-main/ajax/deleteUser.php",
+          `${ApiURl}/deleteUSer.php`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

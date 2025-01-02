@@ -24,7 +24,7 @@ import EuropeCover from '../Table Cover/Europe Table cover.png'
 import Print3D from '../Table Cover/Table cover 3D Print.png'
 import BMW from '../Table Cover/Table cover 60 round BMW.png'
 import CherryLace from '../Table Cover/Table cover 60 round Cherry Lace.png'
-import Golden from '../Table Cover/Table cover 60 “ round Clear Sheet Golden.png'
+
 import Round3DPrint from '../Table Cover/Table cover 60-round 3D Print.png'
 import CherryCover from '../Table Cover/cherry_cover_40_60.png'
 import KumkumPanel from '../Table Cover/kumkum_panel_40_60.jpg'
@@ -62,7 +62,7 @@ function TableCover() {
                 <Products categoryName='Table Cover' productImages={Print3D} productName='3D Print Sheet' discountPrice={399} actualPrice={499} discountPercentage={20} />
                 <Products categoryName='Table Cover' productImages={BMW} productName='BMW' discountPrice={399} actualPrice={499} discountPercentage={20} />
                 <Products categoryName='Table Cover' productImages={CherryLace} productName='Cherry Lace Sheet' discountPrice={399} actualPrice={499} discountPercentage={20} />
-                <Products categoryName='Table Cover' productImages={Golden} productName='Golden Sheet' discountPrice={399} actualPrice={499} discountPercentage={20} />
+               
                 <Products categoryName='Table Cover' productImages={Round3DPrint} productName='3D Print' discountPrice={399} actualPrice={499} discountPercentage={20} />
                 <Products categoryName='Table Cover' productImages={CherryCover} productName='Cherry Sheet' discountPrice={399} actualPrice={499} discountPercentage={20} />
                 <Products categoryName='Table Cover' productImages={KumkumPanel} productName='Kumkum Panel Sheet' discountPrice={399} actualPrice={499} discountPercentage={20} />
