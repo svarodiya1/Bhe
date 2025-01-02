@@ -2,13 +2,7 @@
 
 
 
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "ecommerce";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+include './dp.php';
 
 // Check connection
 if ($conn->connect_error) {

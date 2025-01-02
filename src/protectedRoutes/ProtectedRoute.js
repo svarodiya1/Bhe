@@ -10,9 +10,11 @@ const ProtectedRoute = ({ element: Element }) => {
 
 
 
-  console.log(`Bearer ${token}`); 
+  const send_token= `Bearer ${token}`; 
 
+  console.log("hello word")
 
+  
 
   useEffect(() => {
     if (token) {
@@ -20,6 +22,10 @@ const ProtectedRoute = ({ element: Element }) => {
       $.ajax({
         url: `${ApiURl}/auth.php`,
         method: "GET",
+        data:{
+          token:send_token
+
+        },
         headers: {
           Authorization: `Bearer ${token}` // Send token in Authorization header
         },
