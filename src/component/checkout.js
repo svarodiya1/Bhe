@@ -87,13 +87,10 @@ function Checkout() {
     };
 
 
-
-    console.log("you are data is ;")
-
-    console.log(address)
+    // console.log(address)
 
 
-    address["user_id"]=localStorage.getItem("user_id"); 
+    address["user_id"] = localStorage.getItem("user_id");
 
 
     try {
@@ -106,11 +103,12 @@ function Checkout() {
 
       console.log(address)
 
-      
+
       // console.log(JSON.stringify(orderData));
       console.log(response);
       if (response.order_id) {
         alert(`Order confirmed! Your order ID is ${response.order_id}`);
+        console.log(response);
         // Optionally clear cart
         localStorage.removeItem("cart_id");
         // Redirect or perform other actions
@@ -125,10 +123,12 @@ function Checkout() {
   };
 
   const handleData = (e) => {
-    console.log(address);
-    setAddress({ ...address, [e.target.name]: e.target.value });
+    // Assuming `totalamount` is calculated or set elsewhere
+    setAddress({ ...address, [e.target.name]: e.target.value, total: totalamount });
   };
 
+
+  // console.log(address);
   return (
     <>
       <section className="bg-white py-8 antialiased md:py-5 border">
@@ -281,8 +281,15 @@ function Checkout() {
                       required
                     />
                   </div>
+                  <input
+                type="hidden"
+                name="total_amount"
+                value={totalamount}
+                onChange={handleData}
+              />
                 </div>
               </div>
+              
 
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-gray-900">
@@ -353,6 +360,7 @@ function Checkout() {
                       </dd>
                     </dl>
                   </div>
+
 
                   <div>
                     <button

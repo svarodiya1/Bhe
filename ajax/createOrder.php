@@ -23,8 +23,6 @@ if (!$input_data) {
 
 // Extract data from the input
 $user_id = $input_data['user_id'] ?? 34; 
-// $first_name = $input_data['firstName'] ?? '';
-// $last_name = $input_data['lastName'] ?? '';
 $phone = $input_data['phone'];
 $email = $input_data['email'];
 $address_line1 = $input_data['addressLine1'];
@@ -33,21 +31,18 @@ $landmark = $input_data['landmark'] ?? '';
 $locality = $input_data['locality'] ?? '';
 $city = $input_data['city'] ?? '';
 $state = $input_data['state'] ?? '';
-$total_amount = $input_data['total_amount'] ?? 0.0;
+$total_amount = $input_data['total_amount'] ?? '200';
 $order_date = date('Y-m-d H:i:s');
 $created_at = date('Y-m-d H:i:s');
+
 
 // Initialize items array
 $items = $input_data['items'] ?? [];
 
-//  echo $_POST ;
-
-// var_dump($input_data);
-
+// Transaction start
 $stmt = null;
 try {
     $con->query("START TRANSACTION");
-            
 
     // Insert into customer_address
     $stmt = $con->prepare("
@@ -57,7 +52,7 @@ try {
     ");
     if (!$stmt) throw new Exception("customer_address query failed: " . $con->error);
 
-    $stmt->bind_param("issssssssds", $user_id, $phone, $email, $address_line1, $address_line2, $landmark, $locality, $city, $state, $total_amount, $created_at);
+    $stmt->bind_param("issssssssis", $user_id, $phone, $email, $address_line1, $address_line2, $landmark, $locality, $city, $state, $total_amount, $created_at);
     if (!$stmt->execute()) throw new Exception("Insert customer_address failed: " . $stmt->error);
 
     $address_id = $stmt->insert_id;
@@ -71,8 +66,7 @@ try {
 
     $status = 'Pending';
     $stmt->bind_param("issids", $user_id, $order_date, $status, $address_id, $total_amount, $created_at);
-    if (!$stmt->execute())
-     throw new Exception("Insert orders failed: " . $stmt->error);
+    if (!$stmt->execute()) throw new Exception("Insert orders failed: " . $stmt->error);
 
     $order_id = $stmt->insert_id;
 
@@ -93,12 +87,12 @@ try {
     }
 
     $con->query("COMMIT");
-    echo json_encode(['success' => true, 'message' => 'Order created successfully', 'order_id' => $order_id]);
+    echo json_encode(['success' => true, 'message' => 'Order created successfully!', 'order_id' => $order_id, 'total' => $total_amount]);
 } catch (Exception $e) {
     $con->query("ROLLBACK");
     echo json_encode(['success' => false, 'message' => 'Order creation failed', 'error' => $e->getMessage()]);
 }
-
+ 
 finally {
     if ($stmt) {
         $stmt->close();
@@ -108,4 +102,4 @@ finally {
     }
     $con->close();
 }
-?>  
+?>

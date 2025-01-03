@@ -41,7 +41,7 @@ function Sidebar() {
 
   return (
     <div
-      className="relative w-full h-[70vh] overflow-hidden"
+      className="relative w-full h-[55vh] overflow-hidden"
       style={{
         backgroundImage: `url(${backgrounde})`,
         backgroundPosition: "right center", // Focus on the right side of the image

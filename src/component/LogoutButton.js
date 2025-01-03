@@ -1,29 +1,30 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate instead of useHistory
+import { useNavigate } from 'react-router-dom';
+import login from "../images/login.png";
 
 const LogoutButton = () => {
-  const navigate = useNavigate(); // Use useNavigate for navigation
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     // Remove JWT token and all local storage items
     localStorage.removeItem('token'); // Replace 'token' with your actual JWT key
     localStorage.removeItem('user_id'); // Remove user_id if you are storing it
-    // Clear other localStorage items if needed
     localStorage.clear(); // This will remove all items from localStorage
 
-    // Optionally redirect to login page or home page
-    navigate('/login'); // Adjust the route based on your application's structure
+    // Redirect to login page
+    navigate('/login');
 
-    // Optionally, you may want to notify the user
+    // Notify the user
     alert('You have been logged out successfully.');
   };
 
   return (
     <button
       onClick={handleLogout}
-      className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition duration-300"
+      className="w-full bg-transparent py-2 px-2 rounded-lg hover:bg-purple-300 transition duration-300 flex flex-col justify-center items-center"
     >
-      Logout
+      <img src={login} alt="Logout" className="w-8 h-8 mb-0" /> {/* Logo */}
+      <span className="text-sm text-gray-900">Login</span> {/* Text below logo */}
     </button>
   );
 };
