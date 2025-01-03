@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DashboardSection from './Dashbord';
 import OrderSection from './OrderSection';
 import UserProfile from './UserProfile';
-import UserSetting from './UserSetting';
+// import UserSetting from './UserSetting';
 
 const UserSidebar = () => {
   // State to manage active section
@@ -19,8 +19,8 @@ const UserSidebar = () => {
         return <OrderSection />;
       case 'profile':
         return <UserProfile />;
-      case 'settings':
-        return <UserSetting />;
+      // case 'settings':
+      //   return <UserSetting />;
       default:
         return <DashboardSection />;
     }

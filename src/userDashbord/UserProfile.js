@@ -80,9 +80,9 @@ const ProfileSection = () => {
         </div>
       </div>
 
-      {/* Additional Profile Information */}
+      Additional Profile Information
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {/* Username */}
+       
         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
           <h4 className="text-gray-700 font-semibold">First  Name </h4>
           <p className="text-gray-600 mt-1">{userData.firstname}</p>
@@ -93,7 +93,7 @@ const ProfileSection = () => {
           <p className="text-gray-600 mt-1">{userData.lastname}</p>
         </div>
 
-        {/* Phone Number */}
+        
         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
           <h4 className="text-gray-700 font-semibold">Phone Number</h4>
           <p className="text-gray-600 mt-1">+91 - {userData.phone}</p>
@@ -104,7 +104,7 @@ const ProfileSection = () => {
           <p className="text-gray-600 mt-1">{userData.email}</p>
         </div>
 
-        {/* Address */}
+        
         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
           <h4 className="text-gray-700 font-semibold">Address</h4>
           <p className="text-gray-600 mt-1">house no -123 Main Street</p>
@@ -128,7 +128,7 @@ const ProfileSection = () => {
           <p className="text-gray-600 mt-1">Delhi</p>
         </div>
 
-        {/* Member Since */}
+       
         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
           <h4 className="text-gray-700 font-semibold">Member Since</h4>
           <p className="text-gray-600 mt-1">January 2022</p>

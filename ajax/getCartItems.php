@@ -46,7 +46,7 @@ if (isset($_GET['cart_id'])) {
     $cart_id = intval($_GET['cart_id']);
     getCartItems($cart_id);
 } else {
-    echo json_encode(["status" => "error", "message" => "Invalid input. Please provide cart_id."]);
+    // echo json_encode(["status" => "error", "message" => "Invalid input. Please provide cart_id."]);
 }
 
 // Close the database connection

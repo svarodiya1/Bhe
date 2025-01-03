@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ApiURl from "../controllers/Api";
 import imgLocation from "../controllers/imagePath";
 
@@ -7,7 +7,15 @@ function Cart() {
   const [cartId, setCartId] = useState(localStorage.getItem("cart_id"));
   const [cart, setCart] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [gst, setGST] = useState(0);
+  const [gst, setGST] = useState(0); 
+   const navigate = useNavigate();
+  
+
+  
+
+   const handleclickback = () => {
+    navigate("/"); 
+  };
 
   const addToWishlist = async (productId) => {
     const userId = localStorage.getItem("user_id");
@@ -24,6 +32,28 @@ function Cart() {
       alert("Error adding item to wishlist");
     }
   };
+   
+
+  const handleQuantityChange = (cartItemId, delta) => {  
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.cart_item_id === cartItemId
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) } // Prevent negative quantity
+          : item
+      )     
+    );
+
+  
+    const newTotalAmount = cart.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    setTotalAmount(newTotalAmount);
+    setGST(newTotalAmount * 0.18); // Assuming 18% GST
+  };
+  
+
 
   const removeCartItem = async (cartItemId) => {
     try {
@@ -78,7 +108,8 @@ function Cart() {
             <table className="w-full text-left border-collapse border border-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Product</th>
+                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Product</th> 
+                  <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Price</th>
                   <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Size</th>
                   <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Quantity</th>
                   <th className="border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">Total</th>
@@ -114,15 +145,58 @@ function Cart() {
                         </div>
                       </Link>
                     </td>
+                    <td className="border border-gray-200 px-4 py-2 text-sm">{product.price || "N/A"}</td> 
                     <td className="border border-gray-200 px-4 py-2 text-sm">{product.size || "N/A"}</td>
-                    <td className="border border-gray-200 px-4 py-2 text-sm">{product.quantity}</td>
+                    {/* <td className="border border-gray-200 px-4 py-2 text-sm">{product.quantity}</td> */}  
+
+
+
+
+                    {/* <td className="border border-gray-200 px-4 py-2 text-sm">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={() => handleQuantityChange(product.cart_item_id, -1)}
+      className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-300"
+    > 
+      -
+    </button>
+    <span>{product.quantity}</span>
+    <button
+      onClick={() => handleQuantityChange(product.cart_item_id, 1)}
+      className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-300"
+    >
+      +
+    </button>
+  </div>
+</td> */}
                     <td className="border border-gray-200 px-4 py-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <input type="number"  
+                          min="1"
+                        value={product.quantity}
+                          onChange={(e) => handleQuantityChange(product.cart_item_id, parseInt(e.target.value) - product.quantity)}
+                         className="w-20 border border-gray-300 rounded px-2 py-1 text-center" />
+                                </div>
+                                </td>
+                    <td className="border border-gray-200 px-4 py-2 text-sm">
+                      
                       &#x20b9;{(product.price * product.quantity).toFixed(2)}
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table> 
+
+            <div className="mt-6 flex justify-left">
+  <button
+    onClick={handleclickback}
+    className="bg-blue-600 text-white font-medium py-1 px-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+  >
+    <svg width="30px" height="34px" viewBox="-2.88 -2.88 21.76 21.76" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M8 10L8 14L6 14L-2.62268e-07 8L6 2L8 2L8 6L16 6L16 10L8 10Z" fill="#ffffff"></path> </g></svg>
+    <span>Back to Shop</span>
+  </button>
+</div>
+
           </div>
 
           {/* Price Details */}

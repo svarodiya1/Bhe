@@ -8,13 +8,14 @@ const ProductOverview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
-  const [cartMessage, setCartMessage] = useState(""); // Feedback message
-  const [cartId, setCartId] = useState(localStorage.getItem("cart_id")); // Cart ID
+  const [cartMessage, setCartMessage] = useState("");
+  const [cartId, setCartId] = useState(localStorage.getItem("cart_id"));
   const [sizes, setSizes] = useState([]);
   const [prices, setPrices] = useState([]);
   const [quantities, setQuantities] = useState([]);
   const [availability, setAvailability] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
+  const [cartTotal, setCartTotal] = useState(0); // State for cart total
 
   // Fetch product data
   useEffect(() => {
@@ -28,7 +29,9 @@ const ProductOverview = () => {
 
           const sizes = productData.sizes ? productData.sizes.split(",") : [];
           const prices = productData.prices ? productData.prices.split(",").map(Number) : [];
-          const availability = productData.availability ? productData.availability.split(",").map(Number) : [];
+          const availability = productData.availability
+            ? productData.availability.split(",").map(Number)
+            : [];
 
           setSizes(sizes);
           setPrices(prices);
@@ -45,8 +48,33 @@ const ProductOverview = () => {
       }
     };
 
+    const fetchCartTotal = async () => {
+      try {
+        const response = await $.getJSON(`${ApiURl}/getcartitems.php?cart_id=${cartId}`);
+        
+        if (response && response.data && response.data.length > 0) {
+          const totalAmount = response.data.reduce((acc, item) => {
+            const price = parseFloat(item.price); // Ensure price is a number
+            const quantity = parseInt(item.quantity, 10); // Ensure quantity is a number
+    
+            // Validate that both price and quantity are valid numbers
+            if (!isNaN(price) && !isNaN(quantity)) {
+              return acc + price * quantity;
+            }
+            return acc;
+          }, 0);
+          setCartTotal(totalAmount);
+        } else {
+          setCartTotal(0);
+        }
+      } catch (error) {
+        console.error("Error fetching cart total:", error);
+      }
+    };
+
     fetchData();
-  }, [id]);
+    fetchCartTotal();
+  }, [id, cartId]);
 
   const handleSizeChange = (e) => {
     const { value, checked } = e.target;
@@ -72,19 +100,20 @@ const ProductOverview = () => {
         setCartMessage("Please select at least one size.");
         return;
       }
-
+  
       const quantitiesToSend = selectedSizes.map((size) => {
-        const sizeIndex = sizes.indexOf(size);
-        return quantities[sizeIndex] || 1;
+        const sizeIndex = sizes.indexOf(size);  // Get the index of the selected size
+        return quantities[sizeIndex] || 1;  // Ensure quantities match the selected size
       });
-
+  
+      // Calculate the total price for the selected sizes and quantities
       const total_price = selectedSizes.reduce((acc, size, index) => {
-        const sizeIndex = sizes.indexOf(size);
-        const sizePrice = prices[sizeIndex] || 0;
-        const quantity = quantitiesToSend[index];
-        return acc + sizePrice * quantity;
+        const sizeIndex = sizes.indexOf(size);  // Ensure correct index is used
+        const sizePrice = prices[sizeIndex] || 0;  // Ensure correct price is used for each size
+        const quantity = quantitiesToSend[index];  // Get the correct quantity for each size
+        return acc + sizePrice * quantity;  // Calculate total price
       }, 0);
-
+  
       const response = await $.post(`${ApiURl}/addToCart.php`, {
         product_id: product.product_id,
         cart_id: cartId,
@@ -92,8 +121,7 @@ const ProductOverview = () => {
         quantities: JSON.stringify(quantitiesToSend),
         total_price,
       });
-      console.log(response);
-
+  
       if (response.status === "success") {
         setCartMessage("Product added to cart successfully!");
         navigate("/cart");
@@ -105,6 +133,7 @@ const ProductOverview = () => {
       setCartMessage("Error adding product to cart.");
     }
   };
+  
 
   const calculateGrandTotal = () => {
     return selectedSizes.reduce((acc, size) => {
@@ -117,7 +146,10 @@ const ProductOverview = () => {
 
   return (
     <div className="max-w-7xl mx-auto md:p-8 p-4 bg-gray-100 shadow-lg rounded-lg transition-all duration-500 ease-in-out">
-      <h1>{id}</h1>
+      {/* Utilized Amount Section */}
+      <div className="p-4 bg-blue-500 text-white font-bold text-center mb-4 rounded-lg">
+        Current amount in Cart : ₹{cartTotal}
+      </div>
 
       <div className="flex flex-col md:flex-row gap-4">
         <div className="md:w-1/2 p-2">
@@ -133,16 +165,15 @@ const ProductOverview = () => {
           <h2 className="text-3xl font-semibold mb-2">{product.name}</h2>
 
           <div>
-            {/* Table Headers */}
-            <div className="grid grid-cols-3 font-bold text-gray-700 mb-2">
+            <div className="grid grid-cols-4 font-bold text-gray-700 mb-2">
               <span>Size</span>
               <span>Price</span>
               <span>Quantity</span>
+              <span>Total</span>
             </div>
 
-            {/* Product Details */}
             {sizes.map((size, index) => (
-              <div key={index} className="grid grid-cols-3 items-center p-2 border-b">
+              <div key={index} className="grid grid-cols-4 items-center p-2 border-b">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -166,10 +197,10 @@ const ProductOverview = () => {
                   disabled={availability[index] === 0}
                   className="w-16 text-center border rounded-md"
                 />
+                <span>₹{(quantities[index] || 1) * (prices[index] || 0)}</span>
               </div>
             ))}
 
-            {/* Grand Total */}
             <div className="text-right font-semibold mt-4">
               Grand Total: ₹{calculateGrandTotal()}
             </div>

@@ -31,7 +31,7 @@ $landmark = $input_data['landmark'] ?? '';
 $locality = $input_data['locality'] ?? '';
 $city = $input_data['city'] ?? '';
 $state = $input_data['state'] ?? '';
-$total_amount = $input_data['total_amount'] ?? '200';
+$total_amount = $input_data['total'] ?? '200';
 $order_date = date('Y-m-d H:i:s');
 $created_at = date('Y-m-d H:i:s');
 

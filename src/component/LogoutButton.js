@@ -15,7 +15,7 @@ const LogoutButton = () => {
     navigate('/login');
 
     // Notify the user
-    alert('You have been logged out successfully.');
+    // alert('You have been logged out successfully.');
   };
 
   return (
