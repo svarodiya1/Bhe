@@ -72,7 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_id' => $row['user_id'], // User ID
                     'username' => $row['username'], // Username
                     'email' => $row['email'], // Email
-                    'cart_id' => $cart_id, // Cart ID
+                    'cart_id' => $cart_id,
+                    'role' => $row['role'] // Cart ID
                 ];
 
                 // Generate JWT token
@@ -83,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['username'] = $row['username'];
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['cart_id'] = $cart_id;
+                $_SESSION['role'] = $row['role'];
 
                 // Success response
                 $response['success'] = true;
@@ -90,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['token'] = $jwt; // Include token in response
                 $response['cart_id'] = $cart_id; // Include token in response
                 $response['session'] = $_SESSION;
+                $response['role'] = $row['role'];
             } else {
                 // Invalid password
                 $response['success'] = false;

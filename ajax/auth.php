@@ -29,8 +29,18 @@ function authenticateJWT()
 
     // Get the Authorization header
     $headers = getallheaders();
-    if (isset($headers['Authorization'])) {
-        $authHeader = $headers['Authorization'];
+
+    // echo $headers;
+
+    // echo "chek";
+
+
+
+    $rec_token = $_GET['token'];
+    // echo $rec_token;
+
+    if (isset($rec_token)) {
+        $authHeader = $rec_token;
         $jwt = str_replace('Bearer ', '', $authHeader);
 
         // $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2lzc3VlciIsImlhdCI6MTcyODEzMjQ1NSwiZXhwIjoxNzI4MTM2MDU1LCJ1c2VyX2lkIjozOSwidXNlcm5hbWUiOiJtYW5pc2g3OSIsImVtYWlsIjoibWFuaXNoQGdtYWlsLmNvbSJ9.AZxCPN33A7YOVnSZTduoGL5sPCWRMNL3yAwnJW7adPY";

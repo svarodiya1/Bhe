@@ -29,12 +29,9 @@ CREATE TABLE `cart_items` (
   `quantity` int NOT NULL,
   `price` int DEFAULT NULL,
   `total` int DEFAULT NULL,
-  PRIMARY KEY (`cart_item_id`),
-  KEY `cart_id` (`cart_id`),
-  KEY `product_id` (`product_id`),
-  CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart` (`cart_id`),
-  CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `size` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`cart_item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,10 +54,10 @@ CREATE TABLE `categories` (
   `category_id` int NOT NULL AUTO_INCREMENT,
   `category_name` varchar(100) NOT NULL,
   `parent_id` int DEFAULT '0',
-  `is_active` tinyint(1) DEFAULT '1',
+  `is_active` int DEFAULT '1',
   PRIMARY KEY (`category_id`),
   KEY `parent_id` (`parent_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=196 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=221 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +66,6 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (184,'dsfgdsg',4,0),(185,'sdjisdj',4,1),(186,'kffvklsjdfkl',4,1),(187,'wsfdg',4,1),(188,'wskhg',5,1),(189,'jhgkj',5,1),(190,'Katil',6,1),(191,'Anuo',6,1),(192,'Katil',7,1),(193,'Kamal',7,1),(194,'chuchu',8,1),(195,'bubu',8,1);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -94,7 +90,7 @@ CREATE TABLE `customer_address` (
   `total_amount` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -103,7 +99,6 @@ CREATE TABLE `customer_address` (
 
 LOCK TABLES `customer_address` WRITE;
 /*!40000 ALTER TABLE `customer_address` DISABLE KEYS */;
-INSERT INTO `customer_address` VALUES (1,37,'Palam','Delhi','123','New Delhi','New Delhi','Delhi','9876543987','shubhamvarodiya2004@gmail.com',1356.00,'2024-12-06 09:42:15'),(2,37,'Palam','Delhi','123','New Delhi','New Delhi','Delhi','9876543987','shubhamvarodiya2004@gmail.com',1356.00,'2024-12-06 09:42:36'),(3,37,'Palam','Delhi','123','New Delhi','New Delhi','Delhi','9876543987','shubhamvarodiya2004@gmail.com',1356.00,'2024-12-06 09:42:46'),(4,37,'Palam','Delhi','123','New Delhi','New Delhi','Delhi','9876543987','shubhamvarodiya2004@gmail.com',1356.00,'2024-12-06 09:43:19'),(17,37,'Palam','Delhi','123','New Delhi','Delhi','Delhi','9876543987','shubhamvarodiyad2004@gmail.com',1356.00,'2024-12-06 11:38:02'),(18,37,'Palam','Delhi','123','New Delhi','Delhi','Delhi','9876543987','shubhamvarodiyad2004@gmail.com',1356.00,'2024-12-06 11:51:36'),(19,37,'Palam','Delhi','123','New Delhi','Delhi','Delhi','9876543987','shubhamvarodiyad2004@gmail.com',1356.00,'2024-12-06 12:12:30');
 /*!40000 ALTER TABLE `customer_address` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -123,7 +118,7 @@ CREATE TABLE `main_category` (
   `updated_by` varchar(45) DEFAULT NULL,
   `sample_image` varchar(450) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,7 +127,6 @@ CREATE TABLE `main_category` (
 
 LOCK TABLES `main_category` WRITE;
 /*!40000 ALTER TABLE `main_category` DISABLE KEYS */;
-INSERT INTO `main_category` VALUES (7,'panda',NULL,NULL,NULL,NULL,'1734782401_game-2.jpg'),(8,'Anuo',NULL,NULL,NULL,NULL,'1735029310_b1image.png');
 /*!40000 ALTER TABLE `main_category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -154,7 +148,7 @@ CREATE TABLE `order_items` (
   KEY `product_id` (`product_id`),
   CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
   CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=279 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,7 +172,7 @@ CREATE TABLE `orders` (
   `user_id` int DEFAULT NULL,
   `order_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `status` enum('pending','shipped','completed','canceled') NOT NULL,
-  `total_amount` decimal(10,2) NOT NULL,
+  `total_amount` int NOT NULL,
   `shipping_address` text,
   `payment_status` enum('pending','completed','failed') DEFAULT 'pending',
   `payment_method` enum('credit_card','paypal','cod') DEFAULT 'cod',
@@ -187,7 +181,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`order_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,7 +190,6 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (1,101,'2023-11-15 05:00:00','pending',1500.00,'123 Main St, City, Country','completed','credit_card','2024-12-07 06:50:45',NULL),(2,102,'2023-11-16 08:30:00','pending',300.00,'456 Oak St, City, Country','pending','paypal','2024-12-07 06:50:45',NULL),(3,103,'2023-11-17 02:30:00','pending',2100.00,'789 Pine St, City, Country','completed','cod','2024-12-07 06:50:45',NULL),(4,104,'2023-11-18 06:00:00','pending',0.00,'321 Birch St, City, Country','failed','credit_card','2024-12-07 06:50:45',NULL),(5,105,'2023-11-19 11:15:00','completed',1200.00,'654 Maple St, City, Country','completed','paypal','2024-12-07 06:50:45',NULL),(6,106,'2023-11-25 13:00:00','completed',1600.00,'123 Main , City, Country','completed','credit_card','2024-12-07 06:50:45',NULL),(7,107,'2023-12-15 05:00:00','completed',1500.00,'23 Main St, City, Country','completed','credit_card','2024-12-07 06:50:45',NULL),(8,108,'2023-12-16 08:30:00','completed',300.00,'56 Oak St, City, Country','pending','paypal','2024-12-07 06:50:45',NULL),(9,109,'2023-12-17 02:30:00','completed',2100.00,'89 Pine St, City, Country','completed','cod','2024-12-07 06:50:45',NULL),(10,110,'2023-12-18 06:00:00','completed',0.00,'32 Birch St, City, Country','failed','credit_card','2024-12-07 06:50:45',NULL),(11,111,'2023-12-19 11:15:00','completed',1200.00,'651 Maple St, City, Country','completed','paypal','2024-12-07 06:50:45',NULL),(12,112,'2021-12-15 05:00:00','completed',1500.00,'23 Man St, City, Country','completed','credit_card','2024-12-07 06:50:45',NULL),(13,113,'2021-12-16 08:30:00','completed',300.00,'56 Oa St, City, Country','pending','paypal','2024-12-07 06:50:45',NULL),(14,114,'2021-12-17 02:30:00','completed',2100.00,'89 Pne St, City, Country','completed','cod','2024-12-07 06:50:45',NULL),(15,115,'2021-12-18 06:00:00','completed',0.00,'32 Birh St, City, Country','failed','credit_card','2024-12-07 06:50:45',NULL),(16,116,'2021-12-19 11:15:00','completed',1200.00,'651 Mple St, City, Country','completed','paypal','2024-12-07 06:50:45',NULL),(20,37,'2024-11-30 18:30:00','completed',1200.00,NULL,'pending','cod','2024-12-07 06:50:45',NULL),(30,37,'2024-12-01 18:30:00','completed',800.00,NULL,'pending','cod','2024-12-07 06:50:45',NULL),(40,37,'2024-12-02 18:30:00','completed',450.00,NULL,'pending','cod','2024-12-07 06:50:45',NULL),(50,37,'2024-12-03 18:30:00','completed',620.00,NULL,'pending','cod','2024-12-07 06:50:45',NULL);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,10 +235,11 @@ CREATE TABLE `product_price` (
   `main_category_id` int DEFAULT NULL,
   `sub_category_id` int DEFAULT NULL,
   `product_id` int DEFAULT NULL,
-  `size` varchar(50) NOT NULL,
-  `price` decimal(10,2) DEFAULT NULL,
+  `size` varchar(255) DEFAULT NULL,
+  `price` decimal(15,2) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_available` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `product_price_ibfk_1` (`main_category_id`),
   KEY `product_price_ibfk_2` (`sub_category_id`),
@@ -253,7 +247,7 @@ CREATE TABLE `product_price` (
   CONSTRAINT `product_price_ibfk_1` FOREIGN KEY (`main_category_id`) REFERENCES `main_category` (`id`) ON DELETE CASCADE,
   CONSTRAINT `product_price_ibfk_2` FOREIGN KEY (`sub_category_id`) REFERENCES `categories` (`category_id`) ON DELETE CASCADE,
   CONSTRAINT `product_price_ibfk_3` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=374 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -262,7 +256,6 @@ CREATE TABLE `product_price` (
 
 LOCK TABLES `product_price` WRITE;
 /*!40000 ALTER TABLE `product_price` DISABLE KEYS */;
-INSERT INTO `product_price` VALUES (122,8,194,144,'bb',23.00,'2024-12-24 13:50:38','2024-12-24 13:50:38'),(123,8,194,144,'cc',45.00,'2024-12-24 13:50:38','2024-12-24 13:50:38'),(124,8,194,144,'ll',67.00,'2024-12-24 13:50:38','2024-12-24 13:50:38'),(125,8,194,145,'bb',60.00,'2024-12-24 14:00:29','2024-12-24 14:00:29'),(126,8,194,146,'bb',60.00,'2024-12-24 14:06:51','2024-12-24 14:06:51');
 /*!40000 ALTER TABLE `product_price` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -277,9 +270,9 @@ CREATE TABLE `product_size` (
   `id` int NOT NULL AUTO_INCREMENT,
   `main_category_id` int DEFAULT NULL,
   `sub_category_id` int DEFAULT NULL,
-  `size` varchar(50) NOT NULL,
+  `size` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -288,7 +281,6 @@ CREATE TABLE `product_size` (
 
 LOCK TABLES `product_size` WRITE;
 /*!40000 ALTER TABLE `product_size` DISABLE KEYS */;
-INSERT INTO `product_size` VALUES (38,7,193,'small'),(39,7,193,'sjubhm'),(40,7,193,'123*23'),(41,8,194,'ll'),(42,8,194,'bb'),(43,8,194,'cc'),(44,8,195,'aa'),(45,8,195,'ee'),(46,8,195,'oo');
 /*!40000 ALTER TABLE `product_size` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -303,8 +295,6 @@ CREATE TABLE `products` (
   `product_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text,
-  `price` decimal(10,2) DEFAULT NULL,
-  `size` varchar(60) DEFAULT NULL,
   `brand` varchar(45) DEFAULT NULL,
   `stock_quantity` int DEFAULT NULL,
   `category_id` varchar(45) DEFAULT NULL,
@@ -319,7 +309,7 @@ CREATE TABLE `products` (
   KEY `fk_size_id` (`size_id`),
   CONSTRAINT `fk_size_id` FOREIGN KEY (`size_id`) REFERENCES `product_size` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`sub_category_id`) REFERENCES `categories` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=267 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -328,7 +318,6 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (144,'shubham','',NULL,NULL,'eef',NULL,'8',194,'2024-12-24 13:50:38','2024-12-24 13:50:38',NULL,'676abc2e016ec_b3image.png',NULL),(145,'shubham','',NULL,NULL,'eef',NULL,'8',194,'2024-12-24 14:00:29','2024-12-24 14:00:29',NULL,'676abe7d033b7_b2image.png',NULL),(146,'shubham','',NULL,NULL,'eef',NULL,'8',194,'2024-12-24 14:06:51','2024-12-24 14:06:51',NULL,'676abffb4fa7f_b2image.png',NULL);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -378,7 +367,7 @@ CREATE TABLE `shopping_cart` (
   PRIMARY KEY (`cart_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `shopping_cart_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -387,7 +376,7 @@ CREATE TABLE `shopping_cart` (
 
 LOCK TABLES `shopping_cart` WRITE;
 /*!40000 ALTER TABLE `shopping_cart` DISABLE KEYS */;
-INSERT INTO `shopping_cart` VALUES (1,37,'2024-12-03 05:26:03'),(2,102,'2024-12-06 05:59:00');
+INSERT INTO `shopping_cart` VALUES (6,37,'2025-01-03 09:48:34'),(7,39,'2025-01-03 09:58:57'),(8,101,'2025-01-03 10:02:53'),(9,102,'2025-01-03 10:18:16');
 /*!40000 ALTER TABLE `shopping_cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -433,10 +422,11 @@ CREATE TABLE `users` (
   `phone` bigint NOT NULL,
   `firstname` varchar(45) DEFAULT NULL,
   `lastname` varchar(45) DEFAULT NULL,
+  `role` varchar(20) NOT NULL DEFAULT 'user',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `phone_UNIQUE` (`phone`)
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -445,7 +435,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (18,'bob_brown','bob@example.com','$2y$10$MZFlSHV3wzOipWlTDp4UeOk4g3Bg8b1hl03lIf0gWUB1w5plG1vMe','2024-09-29 18:30:56','2024-10-03 18:00:59',62563,'bob_brown','bob_brown'),(19,'alice_johnson','alice@example.com','$2y$10$Y3.nG1Bx79b2dJqbe1cOeeA8uhP3cVrZxS/cq72d9jbNlU8edHtFS','2024-09-29 18:30:56','2024-10-03 18:00:59',3653,'alice_johnson','alice_johnson'),(20,'charlie_adams','charlie@example.com','$2y$10$yH1ZpQu.Mi1phBlL1x8CpeBRdbTu4b7W4CLPUSuU6zAcFn5cf9NU6','2024-09-29 18:30:56','2024-10-03 18:00:59',565737,'charlie_adams','charlie_adams'),(21,'emily_davis','emily@example.com','$2y$10$4h8ZqN.SspW6TQhgj4OfB.Kz31soReE62D4AtgUnISgL/8MvqPf6O','2024-09-29 18:30:56','2024-10-03 18:00:59',735365,'emily_davis','emily_davis'),(22,'frank_lee','frank@example.com','$2y$10$ZmFg4Z4pl1DiyBc7Mwb9MeG94N1TAqSw7wF/D48d8Aa3KjH43iPIW','2024-09-29 18:30:56','2024-10-03 18:00:59',6357,'frank_lee','frank_lee'),(23,'grace_kim','grace@example.com','$2y$10$J9l/5Zl.m4F.MiEmx3zVzeFgPaGpD0vm8QFmP4cT6V3HgH8LqD2hW','2024-09-29 18:30:56','2024-10-03 18:00:59',76353,'grace_kim','grace_kim'),(24,'hannah_moore','hannah@example.com','$2y$10$7MJWg7v7lsJ2ZTwcM2IlF.pW.FU5Ir5gf8yD.ek.gYVQ/GP5q1b/a','2024-09-29 18:30:56','2024-10-03 18:00:59',73673,'hannah_moore','hannah_moore'),(25,'isaac_wilson','isaac@example.com','$2y$10$6pq.FvLxOaE4o2z1/c8WfOQU0IlO1m2n.nOtnRz4TKmGfZl0rLBmG','2024-09-29 18:30:56','2024-10-03 18:00:59',256,'isaac_wilson','isaac_wilson'),(26,'fnejfn','fjioj@jekfe.com','$2y$10$dw/o3bq02nb11Ps0W6u9r.DpuuWcFN3iIElmN9xuqUybfuOVLgtTG','2024-09-30 14:28:36','2024-10-03 18:00:59',73,'fnejfn','fnejfn'),(37,'antosh','antoijhos2h@gmail.com','Antosh@123','2024-10-03 17:54:55','2024-10-03 18:00:59',9876543987,'antosh','antosh'),(39,'manish79','manish@gmail.com','manish@123','2024-10-03 18:08:21','2024-10-03 18:08:21',8882568627,'manish','kundra'),(101,'John Doe','john@example.com','password123','2024-12-04 07:31:28','2024-12-04 07:31:28',9876543210,NULL,NULL),(102,'Jane Smith','janee@example.com','password456','2024-12-04 07:31:28','2024-12-04 07:31:28',8765432109,NULL,NULL),(103,'Alice Brown','alicee@example.com','password789','2024-12-04 07:31:28','2024-12-04 07:31:28',7654321098,NULL,NULL),(104,'Bob White','bobe@example.com','password101','2024-12-04 07:31:28','2024-12-04 07:31:28',6543210987,NULL,NULL),(105,'Charlie Black','charliee@example.com','password102','2024-12-04 07:31:28','2024-12-04 07:31:28',5432109876,NULL,NULL),(106,'John Do','johyn@example.com','password128','2024-12-04 09:04:34','2024-12-04 09:04:34',9876573210,NULL,NULL),(107,'Jhn Doe','jhn@example.com','password123','2024-12-04 12:13:05','2024-12-04 12:13:05',9876544210,NULL,NULL),(108,'Jan Smith','jnee@example.com','password456','2024-12-04 12:13:05','2024-12-04 12:13:05',8765732109,NULL,NULL),(109,'Alie Brown','aicee@example.com','password789','2024-12-04 12:13:05','2024-12-04 12:13:05',7658321098,NULL,NULL),(110,'Bobe White','bbe@example.com','password101','2024-12-04 12:13:05','2024-12-04 12:13:05',6543280987,NULL,NULL),(111,'Charli Black','chaliee@example.com','password102','2024-12-04 12:13:05','2024-12-04 12:13:05',1432109876,NULL,NULL),(112,'Jhn Do','jh@example.com','password123','2024-12-05 07:09:03','2024-12-05 07:09:03',9876542210,NULL,NULL),(113,'Jan Smth','jne@example.com','password456','2024-12-05 07:09:03','2024-12-05 07:09:03',8762732109,NULL,NULL),(114,'Alie Bown','aiee@example.com','password789','2024-12-05 07:09:03','2024-12-05 07:09:03',7258321098,NULL,NULL),(115,'Bobe Wite','be@example.com','password101','2024-12-05 07:09:03','2024-12-05 07:09:03',6523280987,NULL,NULL),(116,'Charli Back','chliee@example.com','password102','2024-12-05 07:09:03','2024-12-05 07:09:03',2432109876,NULL,NULL);
+INSERT INTO `users` VALUES (17,'jane_smith','jane@example.com','jane@123','2024-09-29 18:30:56','2024-10-03 18:00:59',58902,'jane_smith','jane_smith','user'),(18,'bob_brown','bob@example.com','$2y$10$MZFlSHV3wzOipWlTDp4UeOk4g3Bg8b1hl03lIf0gWUB1w5plG1vMe','2024-09-29 18:30:56','2024-10-03 18:00:59',62563,'bob_brown','bob_brown','user'),(19,'alice_johnson','alice@example.com','$2y$10$Y3.nG1Bx79b2dJqbe1cOeeA8uhP3cVrZxS/cq72d9jbNlU8edHtFS','2024-09-29 18:30:56','2024-10-03 18:00:59',3653,'alice_johnson','alice_johnson','user'),(20,'charlie_adams','charlie@example.com','$2y$10$yH1ZpQu.Mi1phBlL1x8CpeBRdbTu4b7W4CLPUSuU6zAcFn5cf9NU6','2024-09-29 18:30:56','2024-10-03 18:00:59',565737,'charlie_adams','charlie_adams','user'),(21,'emily_davis','emily@example.com','$2y$10$4h8ZqN.SspW6TQhgj4OfB.Kz31soReE62D4AtgUnISgL/8MvqPf6O','2024-09-29 18:30:56','2024-10-03 18:00:59',735365,'emily_davis','emily_davis','user'),(22,'frank_lee','frank@example.com','$2y$10$ZmFg4Z4pl1DiyBc7Mwb9MeG94N1TAqSw7wF/D48d8Aa3KjH43iPIW','2024-09-29 18:30:56','2024-10-03 18:00:59',6357,'frank_lee','frank_lee','user'),(23,'grace_kim','grace@example.com','$2y$10$J9l/5Zl.m4F.MiEmx3zVzeFgPaGpD0vm8QFmP4cT6V3HgH8LqD2hW','2024-09-29 18:30:56','2024-10-03 18:00:59',76353,'grace_kim','grace_kim','user'),(24,'hannah_moore','hannah@example.com','$2y$10$7MJWg7v7lsJ2ZTwcM2IlF.pW.FU5Ir5gf8yD.ek.gYVQ/GP5q1b/a','2024-09-29 18:30:56','2024-10-03 18:00:59',73673,'hannah_moore','hannah_moore','user'),(25,'isaac_wilson','isaac@example.com','$2y$10$6pq.FvLxOaE4o2z1/c8WfOQU0IlO1m2n.nOtnRz4TKmGfZl0rLBmG','2024-09-29 18:30:56','2024-10-03 18:00:59',256,'isaac_wilson','isaac_wilson','user'),(26,'fnejfn','fjioj@jekfe.com','$2y$10$dw/o3bq02nb11Ps0W6u9r.DpuuWcFN3iIElmN9xuqUybfuOVLgtTG','2024-09-30 14:28:36','2024-10-03 18:00:59',73,'fnejfn','fnejfn','user'),(37,'antosh','antoijhos2h@gmail.com','Antosh@123','2024-10-03 17:54:55','2025-01-03 09:33:32',9876543987,'antosh','antosh','admin'),(39,'manish79','manish@gmail.com','manish@123','2024-10-03 18:08:21','2024-10-03 18:08:21',8882568627,'manish','kundra','user'),(101,'John Doe','john@example.com','password123','2024-12-04 07:31:28','2024-12-04 07:31:28',9876543210,NULL,NULL,'user'),(102,'Jane Smith','janee@example.com','password456','2024-12-04 07:31:28','2024-12-04 07:31:28',8765432109,NULL,NULL,'user'),(103,'Alice Brown','alicee@example.com','password789','2024-12-04 07:31:28','2024-12-04 07:31:28',7654321098,NULL,NULL,'user'),(104,'Bob White','bobe@example.com','password101','2024-12-04 07:31:28','2024-12-04 07:31:28',6543210987,NULL,NULL,'user'),(105,'Charlie Black','charliee@example.com','password102','2024-12-04 07:31:28','2024-12-04 07:31:28',5432109876,NULL,NULL,'user'),(106,'John Do','johyn@example.com','password128','2024-12-04 09:04:34','2024-12-04 09:04:34',9876573210,NULL,NULL,'user'),(107,'Jhn Doe','jhn@example.com','password123','2024-12-04 12:13:05','2024-12-04 12:13:05',9876544210,NULL,NULL,'user'),(108,'Jan Smith','jnee@example.com','password456','2024-12-04 12:13:05','2024-12-04 12:13:05',8765732109,NULL,NULL,'user'),(109,'Alie Brown','aicee@example.com','password789','2024-12-04 12:13:05','2024-12-04 12:13:05',7658321098,NULL,NULL,'user'),(110,'Bobe White','bbe@example.com','password101','2024-12-04 12:13:05','2024-12-04 12:13:05',6543280987,NULL,NULL,'user'),(111,'Charli Black','chaliee@example.com','password102','2024-12-04 12:13:05','2024-12-04 12:13:05',1432109876,NULL,NULL,'user'),(112,'Jhn Do','jh@example.com','password123','2024-12-05 07:09:03','2024-12-05 07:09:03',9876542210,NULL,NULL,'user'),(113,'Jan Smth','jne@example.com','password456','2024-12-05 07:09:03','2024-12-05 07:09:03',8762732109,NULL,NULL,'user'),(114,'Alie Bown','aiee@example.com','password789','2024-12-05 07:09:03','2024-12-05 07:09:03',7258321098,NULL,NULL,'user'),(115,'Bobe Wite','be@example.com','password101','2024-12-05 07:09:03','2024-12-05 07:09:03',6523280987,NULL,NULL,'user'),(116,'Charli Back','chliee@example.com','password102','2024-12-05 07:09:03','2024-12-05 07:09:03',2432109876,NULL,NULL,'user'),(117,'Kovidh ','gojo@gmail.com','12345678','2024-12-26 12:49:50','2024-12-26 12:49:50',9876543988,'k','kapoor','user'),(118,'shubham','shubhma@gmail.com','12345678','2024-12-27 05:28:33','2024-12-27 05:28:33',9988998876,'shubham','v','user'),(121,'shubham','shubha@gmail.com','1234567','2024-12-27 05:36:27','2024-12-27 05:36:27',9876511111,'shubham','v','user'),(122,'shubham','shuha@gmail.com','1234567','2024-12-27 05:49:34','2024-12-27 05:49:34',9876511,'shubha','v','user'),(123,'aa','aa@gmail.com','000000','2024-12-27 05:54:58','2024-12-27 05:54:58',999999999,'aew','ewa','user'),(126,'aa','aka@gmail.com','000000','2024-12-27 05:55:23','2024-12-27 05:55:23',9999999998,'aewaa','ewa','user'),(127,'qaa','ronuu@gmail.com','888888','2024-12-27 05:58:06','2024-12-27 05:58:06',12116543987,'awe','rew','user'),(128,'qakka','roguu@gmail.com','222222','2024-12-27 05:58:46','2024-12-27 05:58:46',8876543987,'awe','rew','user');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -458,4 +448,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-24 19:58:45
+-- Dump completed on 2025-01-03 15:55:11

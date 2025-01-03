@@ -1,32 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import $ from "jquery";
 import { useNavigate } from "react-router-dom";
 import ApiURl from "../controllers/Api";
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true);
-
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm_password, setConfirmPassword] = useState(""); // Correct variable name
-  const [username, setUsername] = useState(""); // Correct variable name
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [confirm_password, setConfirmPassword] = useState(""); 
+  const [username, setUsername] = useState(""); 
+  const [errorMessage, setErrorMessage] = useState(""); 
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if a user with an admin role is already logged in
+    const role = localStorage.getItem("role");
+    if (role === "admin") {
+      console.log("Admin logged in");
+    }
+  }, []);
+
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setErrorMessage(""); // Clear error message when switching forms
+    setErrorMessage("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Clear error message on submit
+    setErrorMessage("");
 
-    // Validate form data
     if (
       !phone ||
       !password ||
@@ -51,7 +57,6 @@ function Login() {
           confirm_password,
         };
 
-    // Use POST request instead of GET for sensitive data
     $.post(
       isLogin
         ? `${ApiURl}/login.php`
@@ -59,32 +64,29 @@ function Login() {
       data,
       function (response) {
         if (response.success) {
-          setErrorMessage(""); // Clear error message on success
+          setErrorMessage("");
           alert(response.message);
-          console.log(response);
-          console.log(username);
-          console.log(response);
 
-
-
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('cart_id', response.cart_id);
-          
-          localStorage.setItem('user_id', response.session["user_id"]);
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("cart_id", response.cart_id);
+          localStorage.setItem("user_id", response.session["user_id"]);
+          localStorage.setItem("role", response.role); // Store the user's role
 
           isLogin ? navigate("/dashboard") : navigate("/login");
         } else {
-          setErrorMessage(response.message); // Show error message from server
+          setErrorMessage(response.message);
         }
       }
     ).fail((error) => {
-      setErrorMessage("Error: " + error.responseText); // Show error if request fails
+      setErrorMessage("Error: " + error.responseText);
     });
   };
 
+  const isAdmin = localStorage.getItem("role") === "admin";
+
   return (
-    <div className="min-h-screen flex items-center justify-center  bg-gradient-to-r from-purple-100 via-purple-400 to-purple-300 ">
-      <div className=" bg-gradient-to-r from-purple-100 via-purple-200 to-purple-300 px- p-8 rounded-lg shadow-md max-w-lg w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-100 via-purple-400 to-purple-300">
+      <div className="bg-gradient-to-r from-purple-100 via-purple-200 to-purple-300 px- p-8 rounded-lg shadow-md max-w-lg w-full">
         <h2 className="text-2xl font-bold text-center mb-6">
           {isLogin ? "Login" : "Signup"}
         </h2>
@@ -92,10 +94,7 @@ function Login() {
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="firstname"
-              >
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstname">
                 Username
               </label>
               <input
@@ -103,17 +102,14 @@ function Login() {
                 type="text"
                 id="firstname"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
-                placeholder="Enter your First name"
+                placeholder="Enter your username"
               />
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-5">
             {!isLogin && (
               <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="firstname"
-                >
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstname">
                   First Name
                 </label>
                 <input
@@ -127,10 +123,7 @@ function Login() {
             )}
             {!isLogin && (
               <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="lastname"
-                >
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="lastname">
                   Last Name
                 </label>
                 <input
@@ -146,10 +139,7 @@ function Login() {
 
           {!isLogin && (
             <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="email"
-              >
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                 Email Id
               </label>
               <input
@@ -163,10 +153,7 @@ function Login() {
           )}
 
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="mobileNo"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="mobileNo">
               Mobile Number
             </label>
             <input
@@ -180,10 +167,7 @@ function Login() {
           </div>
 
           <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
               Password
             </label>
             <input
@@ -198,10 +182,7 @@ function Login() {
 
           {!isLogin && (
             <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="confirmPassword"
-              >
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
                 Confirm Password
               </label>
               <input
@@ -237,6 +218,18 @@ function Login() {
             </button>
           </p>
         </div>
+
+        {/* Render Admin Button if role is admin */}
+        {isAdmin && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => navigate("/admin")}
+              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+            >
+              Admin Panel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,11 +4,21 @@ import { IoMdHeartEmpty } from "react-icons/io";
 import { PiShoppingCartSimple } from "react-icons/pi";
 import LogoutButton from "./LogoutButton";
 import SearchBar from "./Searchbar";
+import { useEffect, useState } from "react";
 
 function Navbar() {
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState("");
 
-  const handleClick = () => {
+  useEffect(() => {
+    // Fetch user role from localStorage
+    const role = localStorage.getItem("role");
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
+
+  const handleAdminClick = () => {
     navigate("/admin"); // Navigate to admin page
   };
 
@@ -77,12 +87,14 @@ function Navbar() {
               <i className="fas fa-bars"></i>
             </button>
             {/* Admin Button for Desktop */}
-            <button
-              onClick={handleClick}
-              className="hidden lg:block text-white bg-purple-600 px-3 py-1 rounded-md"
-            >
-              Admin
-            </button>
+            {userRole === "admin" && (
+              <button
+                onClick={handleAdminClick}
+                className="hidden lg:block text-white bg-purple-600 px-3 py-1 rounded-md"
+              >
+                Admin
+              </button>
+            )}
           </div>
         </div>
 
@@ -132,15 +144,29 @@ function Navbar() {
                 TV Cover
               </Link>
             </li>
-            {/* Admin Button for Mobile */}
-            <li className="lg:hidden">
-              <button
-                onClick={handleClick}
-                className="text-purple-100 hover:text-purple-300"
-              >
-                Admin
-              </button>
-            </li>
+            {/* Admin Button for Mobile
+            {userRole === "admin" && (
+              <li className="lg:hidden">
+                <button
+                  onClick={handleAdminClick}
+                  className="text-purple-100 hover:text-purple-300"
+                >
+                  Admin
+                </button>
+              </li>
+            )} */}
+
+             {/* Admin Button */}
+        {userRole === "admin" && (
+          <li>
+            <button
+              onClick={handleAdminClick}
+              className="text-purple-100 hover:text-purple-300"
+            >
+              Admin
+            </button>
+          </li>
+        )}
           </ul>
         </div>
       </nav>
